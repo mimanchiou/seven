@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Portfolio Test</title>
+</head>
+<body>
+    <h1>Portfolio API Test</h1>
+    
+    <button onclick="getPortfolio()">Get Portfolio</button>
+    <button onclick="addStock()">Add Stock</button>
+    <br><br>
+    
+    <button onclick="getStockPrice('AAPL')">AAPL</button>
+    <button onclick="getStockPrice('TSLA')">TSLA</button>
+    <button onclick="getStockPrice('AMZN')">AMZN</button>
+    <button onclick="getStockPrice('C')">C</button>
+    <br><br>
+    
+    <button onclick="addSample()">Add Sample Data</button>
+    
+    <div id="result"></div>
+
+    <script>
+        async function getPortfolio() {
+            const res = await fetch('http://localhost:3000/api/portfolio');
+            const data = await res.json();
+            document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+        
+        async function addStock() {
+            const ticker = prompt('Ticker:');
+            const quantity = prompt('Quantity:');
+            const price = prompt('Price (optional):');
+            
+            const res = await fetch('http://localhost:3000/api/portfolio', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    stockTicker: ticker,
+                    quantity: parseFloat(quantity),
+                    purchasePrice: price ? parseFloat(price) : null
+                })
+            });
+            
+            const data = await res.json();
+            document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+        
+        async function getStockPrice(ticker) {
+            const res = await fetch('http://localhost:3000/api/stock/' + ticker);
+            const data = await res.json();
+            document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+        
+        async function addSample() {
+            await fetch('http://localhost:3000/api/portfolio', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ stockTicker: 'AAPL', quantity: 10, purchasePrice: 150 })
+            });
+            
+            await fetch('http://localhost:3000/api/portfolio', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ stockTicker: 'TSLA', quantity: 5, purchasePrice: 200 })
+            });
+            
+            getPortfolio();
+        }
+        
+        getPortfolio();
+    </script>
+</body>
+</html>
