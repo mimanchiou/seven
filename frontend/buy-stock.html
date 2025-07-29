@@ -5,7 +5,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
-  
+  <script>
+    const API_url = 'https://api.example.com'; // 替换为实际API地址
+  </script>
   <!-- 配置Tailwind -->
   <script>
     tailwind.config = {
@@ -59,19 +61,6 @@
         <i class="fa fa-line-chart text-primary text-2xl"></i>
         <h1 class="text-xl font-bold text-neutral-700">StockTrader Pro</h1>
       </div>
-      
-      <div class="flex items-center space-x-6">
-        <button class="text-neutral-500 hover:text-primary transition-colors">
-          <i class="fa fa-bell-o"></i>
-        </button>
-        <button class="text-neutral-500 hover:text-primary transition-colors">
-          <i class="fa fa-cog"></i>
-        </button>
-        <div class="flex items-center space-x-2">
-          <img src="https://picsum.photos/id/1005/40/40" alt="用户头像" class="w-8 h-8 rounded-full object-cover border-2 border-primary">
-          <span class="font-medium">张经理</span>
-        </div>
-      </div>
     </div>
   </header>
 
@@ -81,7 +70,7 @@
     <div class="mb-6">
       <a href="index.html" class="inline-flex items-center text-primary hover:text-primary/80 transition-colors">
         <i class="fa fa-arrow-left mr-2"></i>
-        <span>返回市场</span>
+        <span>Return Market</span>
       </a>
     </div>
     
@@ -91,22 +80,22 @@
       <div class="lg:col-span-1">
         <div class="bg-white rounded-xl shadow-sm p-6 sticky top-24 card-hover">
           <h3 class="text-xl font-semibold mb-6 flex items-center">
-            <i class="fa fa-plus-circle text-success mr-2"></i>买入股票
+            <i class="fa fa-plus-circle text-success mr-2"></i>Buy Stock
           </h3>
           
           <div class="mb-6">
-            <label for="stockSelect" class="block text-sm text-neutral-500 mb-2">选择股票</label>
+            <label for="stockSelect" class="block text-sm text-neutral-500 mb-2">Select Stock</label>
             <select id="stockSelect" class="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
-              <option value="600519" selected="">贵州茅台 (600519)</option>
-              <option value="000858">五 粮 液 (000858)</option>
-              <option value="000568">泸州老窖 (000568)</option>
-              <option value="600809">山西汾酒 (600809)</option>
-              <option value="002304">洋河股份 (002304)</option>
+              <option value="TSLA" selected="" id="TSLA">TSLA</option>
+              <option value="AAPL" id="AAPL">AAPL</option>
+              <option value="IBM" id="IBM">IBM</option>
+              <option value="GOOGL" id="GOOGL">GOOGL</option>
+              <option value="NKE" id="NKE">NKE</option>
             </select>
           </div>
           
           <div class="mb-6">
-            <label class="block text-sm text-neutral-500 mb-2">当前价格</label>
+            <label class="block text-sm text-neutral-500 mb-2">Current Price</label>
             <div class="flex items-center border border-neutral-300 rounded-lg px-3 py-2">
               <span class="text-lg font-semibold">¥1728.00</span>
               <span class="ml-2 text-success text-sm"><i class="fa fa-caret-up"></i>1.67%</span>
@@ -115,8 +104,8 @@
           
           <div class="mb-6">
             <div class="flex justify-between items-center mb-2">
-              <label for="buyAmount" class="block text-sm text-neutral-500">买入数量(股)</label>
-              <span class="text-xs text-neutral-500">最低100股，每手100股</span>
+              <label for="buyAmount" class="block text-sm text-neutral-500">Quantity to Buy</label>
+              <span class="text-xs text-neutral-500">Mininum 100 shares，100 Shares per Lot</span>
             </div>
             
             <div class="flex">
@@ -141,34 +130,34 @@
           
           <div class="space-y-4 mb-6">
             <div class="flex justify-between items-center pb-3 border-b border-neutral-100">
-              <span class="text-neutral-500">可用资金</span>
-              <span class="font-medium">¥54,230.12</span>
+              <span class="text-neutral-500">Available Funds</span>
+              <span class="font-medium"></span>
             </div>
             <div class="flex justify-between items-center pb-3 border-b border-neutral-100">
-              <span class="text-neutral-500">本次买入金额</span>
-              <span class="font-medium" id="totalAmount">¥172,800.00</span>
+              <span class="text-neutral-500">Amount to Buy</span>
+              <span class="font-medium" id="totalAmount"></span>
             </div>
             <div class="flex justify-between items-center pb-3 border-b border-neutral-100">
-              <span class="text-neutral-500">手续费预估</span>
-              <span class="font-medium">¥17.28</span>
+              <span class="text-neutral-500">Estimated Fees</span>
+              <span class="font-medium"></span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="font-medium">所需总金额</span>
-              <span class="font-bold text-lg" id="grandTotal">¥172,817.28</span>
+              <span class="font-medium">Total Amount Required</span>
+              <span class="font-bold text-lg" id="grandTotal"></span>
             </div>
           </div>
           
           <div class="space-y-3">
             <button id="confirmBuyBtn" class="w-full py-3 bg-success hover:bg-success/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center">
-              <i class="fa fa-check-circle mr-2"></i>确认买入
+              <i class="fa fa-check-circle mr-2"></i>Confirm Buy
             </button>
             <button id="cancelBtn" class="w-full py-3 bg-neutral-200 hover:bg-neutral-300 text-neutral-700 rounded-lg font-medium transition-colors">
-              取消
+              Cancel
             </button>
           </div>
           
           <div class="mt-4 text-xs text-neutral-500 text-center">
-            <p>提示：买入委托提交后，将根据市场情况撮合成交</p>
+            <p>Note:After submitting the buy order,it will be matched and executed based on market conditions.</p>
           </div>
         </div>
       </div>
@@ -182,35 +171,29 @@
         <div class="w-16 h-16 bg-success/20 rounded-full flex items-center justify-center mx-auto mb-4">
           <i class="fa fa-check text-2xl text-success"></i>
         </div>
-        <h3 class="text-xl font-bold mb-2">买入委托已提交</h3>
-        <p class="text-neutral-500 mb-6">您的买入委托已成功提交，正在等待成交</p>
+        <h3 class="text-xl font-bold mb-2">Buy order has been submitted</h3>
+        <p class="text-neutral-500 mb-6">Your buy order has been successfully submitted and is awaiting execution.</p>
         
         <div class="bg-neutral-100 rounded-lg p-4 text-left mb-6 text-sm">
           <div class="flex justify-between mb-2">
-            <span class="text-neutral-500">股票名称</span>
-            <span>贵州茅台 (600519)</span>
+            <span class="text-neutral-500">Stock Name</span>
+            <span></span>
           </div>
           <div class="flex justify-between mb-2">
-            <span class="text-neutral-500">委托价格</span>
-            <span>¥1728.00</span>
+            <span class="text-neutral-500">Order Price</span>
+            <span></span>
           </div>
           <div class="flex justify-between mb-2">
-            <span class="text-neutral-500">委托数量</span>
-            <span>100股</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-neutral-500">委托编号</span>
-            <span>WT2023061587623</span>
+            <span class="text-neutral-500">Order Quantity</span>
+            <span></span>
           </div>
         </div>
         
         <div class="flex gap-3">
           <a href="index.html" class="flex-1 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition-colors text-center">
-            返回市场
+            Return Market
           </a>
-          <button id="viewOrderBtn" class="flex-1 py-2 border border-neutral-300 hover:bg-neutral-100 rounded-lg font-medium transition-colors">
-            查看订单
-          </button>
+         
         </div>
       </div>
     </div>
@@ -223,32 +206,31 @@
         <div class="w-16 h-16 bg-danger/20 rounded-full flex items-center justify-center mx-auto mb-4">
           <i class="fa fa-exclamation-triangle text-2xl text-danger"></i>
         </div>
-        <h3 class="text-xl font-bold mb-2">资金不足</h3>
-        <p class="text-neutral-500 mb-6">您的可用资金不足以完成本次交易，请先充值或减少买入数量</p>
+        <h3 class="text-xl font-bold mb-2">Insufficient Funds</h3>
+        <p class="text-neutral-500 mb-6">Insufficient funds,please recharge or reduce the purchase quantity.</p>
         
         <button id="closeInsufficientBtn" class="w-full py-3 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition-colors">
-          我知道了
+          I understand
         </button>
       </div>
     </div>
   </div>
   
   <!-- 页脚 -->
-  <footer class="bg-white border-t border-neutral-200 mt-12">
+  <footer class="bg-white border-t border-neutral-200 mt-8">
     <div class="container mx-auto px-4 py-6 text-center text-neutral-500 text-sm">
-      <p>© 2023 StockTrader Pro. 版权所有</p>
-      <p class="mt-1">免责声明：本网站提供的信息仅供参考，不构成任何投资建议</p>
+      <p>our team</p>
+      <p class="mt-1">Zinnia Zhang. Zero Zhu. Benjie Zhao. Ivan Zhao. Diana Xu.</p>
     </div>
   </footer>
 
   <script>
   
       // 数量选择逻辑
-      const buyAmountInput = document.getElementById('buyAmount');
       const decreaseBtn = document.getElementById('decreaseBtn');
       const increaseBtn = document.getElementById('increaseBtn');
       const totalAmountEl = document.getElementById('totalAmount');
-      const grandTotalEl = document.getElementById('grandTotal');
+      const grandTotalEl = document.getElementById('grandTotal');//zongjiage
       const quickAmountBtns = document.querySelectorAll('.quick-amount');
       const confirmBuyBtn = document.getElementById('confirmBuyBtn');
       const cancelBtn = document.getElementById('cancelBtn');
@@ -256,19 +238,53 @@
       const insufficientFundsModal = document.getElementById('insufficientFundsModal');
       const viewOrderBtn = document.getElementById('viewOrderBtn');
       const closeInsufficientBtn = document.getElementById('closeInsufficientBtn');
-      const stockSelect = document.getElementById('stockSelect');
-      
-      // 股票价格映射表
-      const stockPrices = {
-        '600519': 1728.00,
-        '000858': 168.20,
-        '000568': 235.60,
-        '600809': 298.50,
-        '002304': 142.60
-      };
+      const stockSelect = document.getElementById('stockSelect');    
+      const currentPrice=document.getElementById('currentPrice');// 当前价格
+      const buyAmount=document.getElementById('buyAmount');// 获取买入数
+
+      let stockData={}
+      let availableFunds =0; // 可用资金
+      // 股票价格映射表()shoupanjian
+      async function fetchstockPrices(stockName)  {
+        try{
+         // 调用后端API获取收盘价（替换为实际API地址）
+          const response = await fetch(`${API_url}/stocks/${stockName}/price`);
+          if (!response.ok) throw new Error('Failed to fetch stock price');
+
+          const data = await response.json();
+          stockData[stockName] = data; // 存储股票数据（包含收盘价、名称等）
+
+    // 更新当前价格显示
+           currentPrice.textContent = `¥${data.closePrice.toFixed(2)}`;
+    // 更新总金额计算
+          updateTotalAmount();
+  } catch (error) {
+    console.error('Error fetching stock price:', error);
+    if (document.getElementById('chartLoader')) {
+      document.getElementById('chartLoader').classList.add('hidden');
+    }
+    alert('Failed to get stock price. Please try again.');
+  }
+}
+// 从后端获取可用资金
+async function fetchAvailableFunds() {
+  try {
+    const response = await fetch(`${API_url}/account/funds`);
+    if (!response.ok) throw new Error('Failed to fetch available funds');
+
+    const data = await response.json();
+    availableFunds = data.available;
+    availableFundsEl.textContent = `¥${availableFunds.toFixed(2)}`;
+  } catch (error) {
+    console.error('Error fetching funds:', error);
+    alert('Failed to get available funds. Please try again.');
+  }
+}
       
       // 更新总金额
       function updateTotalAmount() {
+        const stockCode = stockSelect.value;
+        if (!stockData[stockCode]) return;
         const amount = parseInt(buyAmountInput.value);
         const price = stockPrices[stockSelect.value];
         const totalAmount = amount * price;
@@ -278,7 +294,64 @@
         totalAmountEl.textContent = `¥${totalAmount.toFixed(2)}`;
         grandTotalEl.textContent = `¥${grandTotal.toFixed(2)}`;
       }
+      // 提交购买请求到后端
+async function submitBuyOrder() {
+  const stockCode = stockSelect.value;
+  if (!stockData[stockCode]) return;
+
+  const amount = parseInt(buyAmount.value);
+  const price = stockData[stockCode].closePrice;
+  const totalAmount = parseFloat(totalAmountEl.textContent.replace('¥', ''));
+  const grandTotal = parseFloat(grandTotalEl.textContent.replace('¥', ''));
+
+  try {
+    // 禁用按钮防止重复提交
+    confirmBuyBtn.disabled = true;
+    confirmBuyBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>Processing...';
+
+    // 调用后端购买接口（替换为实际API地址）
+    const response = await fetch(`${API_url}/orders/buy`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        stockCode: stockCode, // 股票名称
+        quantity: amount, // 购买数量
+        unitPrice: price, // 单价
+        grandTotal: grandTotal // 总金额
+      })
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      // 购买成功
+      successModal.classList.remove('hidden');
+      successModal.classList.add('flex');
+      // 更新订单详情弹窗内容
+      document.querySelector('.bg-neutral-100.rounded-lg.p-4.text-left.mb-6.text-sm .flex.justify-between.mb-2:nth-child(1) span:last-child').textContent = `${stockCode}`;
+      document.querySelector('.bg-neutral-100.rounded-lg.p-4.text-left.mb-6.text-sm .flex.justify-between.mb-2:nth-child(2) span:last-child').textContent = `¥${price.toFixed(2)}`;
+      document.querySelector('.bg-neutral-100.rounded-lg.p-4.text-left.mb-6.text-sm .flex.justify-between.mb-2:nth-child(3) span:last-child').textContent = `${amount} shares`;
       
+      // 重新获取可用资金
+      await fetchAvailableFunds();
+    } else if (result.error === 'insufficient_funds') {
+      // 资金不足
+      insufficientFundsModal.classList.remove('hidden');
+      insufficientFundsModal.classList.add('flex');
+    } else {
+      throw new Error(result.message || 'Purchase failed');
+    }
+  } catch (error) {
+    console.error('Purchase error:', error);
+    alert('Purchase failed. Please try again.');
+  } finally {
+    // 恢复按钮状态
+    confirmBuyBtn.disabled = false;
+    confirmBuyBtn.innerHTML = '<i class="fa fa-check-circle mr-2"></i>Confirm Buy';
+  }
+}
       // 减少数量
       decreaseBtn.addEventListener('click', function() {
         let currentValue = parseInt(buyAmountInput.value);
@@ -316,44 +389,13 @@
         });
       });
       
-      // 股票选择变化时更新
+      // 股票选择变化时更新(get close price)
       stockSelect.addEventListener('change', function() {
-        // 更新图表加载状态
-        document.getElementById('chartLoader').classList.remove('hidden');
-        
-        // 模拟加载新数据
-        setTimeout(() => {
-          // 生成随机数据
-          const basePrice = stockPrices[this.value];
-          const newData = Array(9).fill().map(() => basePrice + (Math.random() * 20 - 10));
-          
-          stockChart.data.datasets[0].data = newData;
-          stockChart.update();
-          
-          // 隐藏加载动画
-          document.getElementById('chartLoader').classList.add('hidden');
-          
-          // 更新总金额
-          updateTotalAmount();
-        }, 600);
+       fetchstockPrices(this.value);
       });
       
-      // 确认买入
-      confirmBuyBtn.addEventListener('click', function() {
-        // 检查资金是否充足 (示例)
-        const grandTotal = parseFloat(grandTotalEl.textContent.replace('¥', '').replace(',', ''));
-        const availableFunds = 54230.12; // 可用资金
-        
-        if (grandTotal <= availableFunds) {
-          // 资金充足，显示成功弹窗
-          successModal.classList.remove('hidden');
-          successModal.classList.add('flex');
-        } else {
-          // 资金不足，显示提示弹窗
-          insufficientFundsModal.classList.remove('hidden');
-          insufficientFundsModal.classList.add('flex');
-        }
-      });
+      // 确认买入(post name,number,totalprice,get)
+      confirmBuyBtn.addEventListener('click', submitBuyOrder);
       
       // 取消按钮
       cancelBtn.addEventListener('click', function() {
@@ -376,6 +418,16 @@
           }
         });
       });
+      // 页面初始化
+async function init() {
+  // 初始化时获取可用资金
+  await fetchAvailableFunds();
+  // 获取默认选中股票的价格
+  await fetchStockPrice(stockSelect.value);
+}
+
+// 页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', init);
     
   </script>
 
