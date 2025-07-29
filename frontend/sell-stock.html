@@ -1,0 +1,482 @@
+<html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>卖出股票 - StockTrader Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  
+  <!-- 配置Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            success: '#52C41A',
+            danger: '#FF4D4F',
+            neutral: {
+              100: '#F5F7FA',
+              200: '#E4E6EB',
+              300: '#C9CDD4',
+              400: '#86909C',
+              500: '#4E5969',
+              600: '#272E3B',
+              700: '#1D2129',
+            }
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .card-hover {
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      .card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+      .number-input-spin {
+        user-select: none;
+      }
+    }
+  </style>
+</head>
+<body class="font-inter bg-neutral-100 text-neutral-700 min-h-screen">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-line-chart text-primary text-2xl"></i>
+        <h1 class="text-xl font-bold text-neutral-700">StockTrader Pro</h1>
+      </div>
+      
+      <div class="flex items-center space-x-6">
+        <button class="text-neutral-500 hover:text-primary transition-colors">
+          <i class="fa fa-bell-o"></i>
+        </button>
+        <button class="text-neutral-500 hover:text-primary transition-colors">
+          <i class="fa fa-cog"></i>
+        </button>
+        <div class="flex items-center space-x-2">
+          <img src="https://picsum.photos/id/1005/40/40" alt="用户头像" class="w-8 h-8 rounded-full object-cover border-2 border-primary">
+          <span class="font-medium">张经理</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="container mx-auto px-4 py-6">
+    <!-- 返回按钮 -->
+    <div class="mb-6">
+      <a href="index.html" class="inline-flex items-center text-primary hover:text-primary/80 transition-colors">
+        <i class="fa fa-arrow-left mr-2"></i>
+        <span>返回市场</span>
+      </a>
+    </div>
+      <!-- 右侧：卖出表单 -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-xl shadow-sm p-6 sticky top-24 card-hover">
+          <h3 class="text-xl font-semibold mb-6 flex items-center">
+            <i class="fa fa-minus-circle text-danger mr-2"></i>卖出股票
+          </h3>
+          
+          <div class="mb-6">
+            <label for="stockSelect" class="block text-sm text-neutral-500 mb-2">选择股票</label>
+            <select id="stockSelect" class="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+              <option value="600519" selected="">贵州茅台 (600519)</option>
+              <option value="000858">五 粮 液 (000858)</option>
+              <option value="000568">泸州老窖 (000568)</option>
+              <option value="600809">山西汾酒 (600809)</option>
+              <option value="002304">洋河股份 (002304)</option>
+            </select>
+          </div>
+          
+          <!-- 持仓信息 -->
+          <div class="mb-6 p-4 bg-neutral-100 rounded-lg">
+            <p class="text-sm text-neutral-500 mb-3">持仓信息</p>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <p class="text-neutral-500">持仓数量</p>
+                <p class="font-semibold" id="holdingsAmount">100 股</p>
+              </div>
+              <div>
+                <p class="text-neutral-500">持仓成本</p>
+                <p class="font-semibold">¥1680.50</p>
+              </div>
+              <div>
+                <p class="text-neutral-500">当前市值</p>
+                <p class="font-semibold">¥172,800.00</p>
+              </div>
+              <div>
+                <p class="text-neutral-500">浮动盈亏</p>
+                <p class="font-semibold text-success">+¥4,750.00 (+2.89%)</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <label class="block text-sm text-neutral-500 mb-2">当前价格</label>
+            <div class="flex items-center border border-neutral-300 rounded-lg px-3 py-2">
+              <span class="text-lg font-semibold">¥1728.00</span>
+              <span class="ml-2 text-success text-sm"><i class="fa fa-caret-up"></i>1.67%</span>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <div class="flex justify-between items-center mb-2">
+              <label for="sellAmount" class="block text-sm text-neutral-500">卖出数量(股)</label>
+              <span class="text-xs text-neutral-500">最低100股，每手100股</span>
+            </div>
+            
+            <div class="flex">
+              <button id="decreaseBtn" class="w-10 h-10 border border-neutral-300 rounded-l-lg flex items-center justify-center hover:bg-neutral-100 transition-colors number-input-spin">
+                <i class="fa fa-minus"></i>
+              </button>
+              <input type="number" id="sellAmount" value="100" min="100" step="100" max="100" class="flex-1 border-t border-b border-neutral-300 text-center py-2 focus:outline-none">
+              <button id="increaseBtn" class="w-10 h-10 border border-neutral-300 rounded-r-lg flex items-center justify-center hover:bg-neutral-100 transition-colors number-input-spin">
+                <i class="fa fa-plus"></i>
+              </button>
+            </div>
+            
+            <!-- 快捷数量选择 -->
+            <div class="flex flex-wrap gap-2 mt-3">
+              <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded text-sm transition-colors quick-amount">100</button>
+              <button class="px-3 py-1 bg-neutral-300 text-neutral-500 rounded text-sm cursor-not-allowed">500</button>
+              <button class="px-3 py-1 bg-neutral-300 text-neutral-500 rounded text-sm cursor-not-allowed">1000</button>
+              <button class="px-3 py-1 bg-primary/10 text-primary rounded text-sm transition-colors quick-amount" id="sellAllBtn">全部卖出</button>
+            </div>
+          </div>
+          
+          <div class="space-y-4 mb-6">
+            <div class="flex justify-between items-center pb-3 border-b border-neutral-100">
+              <span class="text-neutral-500">本次卖出金额</span>
+              <span class="font-medium" id="totalAmount">¥172,800.00</span>
+            </div>
+            <div class="flex justify-between items-center pb-3 border-b border-neutral-100">
+              <span class="text-neutral-500">手续费预估</span>
+              <span class="font-medium">¥17.28</span>
+            </div>
+            <div class="flex justify-between items-center pb-3 border-b border-neutral-100">
+              <span class="text-neutral-500">印花税</span>
+              <span class="font-medium">¥172.80</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="font-medium">实得总金额</span>
+              <span class="font-bold text-lg" id="netTotal">¥172,610.00</span>
+            </div>
+          </div>
+          
+          <div class="space-y-3">
+            <button id="confirmSellBtn" class="w-full py-3 bg-danger hover:bg-danger/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center">
+              <i class="fa fa-check-circle mr-2"></i>确认卖出
+            </button>
+            <button id="cancelBtn" class="w-full py-3 bg-neutral-200 hover:bg-neutral-300 text-neutral-700 rounded-lg font-medium transition-colors">
+              取消
+            </button>
+          </div>
+          
+          <div class="mt-4 text-xs text-neutral-500 text-center">
+            <p>提示：卖出委托提交后，将根据市场情况撮合成交</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- 卖出成功弹窗 -->
+  <div id="successModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 transform transition-all">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-success/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa fa-check text-2xl text-success"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">卖出委托已提交</h3>
+        <p class="text-neutral-500 mb-6">您的卖出委托已成功提交，正在等待成交</p>
+        
+        <div class="bg-neutral-100 rounded-lg p-4 text-left mb-6 text-sm">
+          <div class="flex justify-between mb-2">
+            <span class="text-neutral-500">股票名称</span>
+            <span>贵州茅台 (600519)</span>
+          </div>
+          <div class="flex justify-between mb-2">
+            <span class="text-neutral-500">委托价格</span>
+            <span>¥1728.00</span>
+          </div>
+          <div class="flex justify-between mb-2">
+            <span class="text-neutral-500">委托数量</span>
+            <span>100股</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-neutral-500">委托编号</span>
+            <span>WT2023061587624</span>
+          </div>
+        </div>
+        
+        <div class="flex gap-3">
+          <a href="index.html" class="flex-1 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition-colors text-center">
+            返回市场
+          </a>
+          <button id="viewOrderBtn" class="flex-1 py-2 border border-neutral-300 hover:bg-neutral-100 rounded-lg font-medium transition-colors">
+            查看订单
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 持仓不足弹窗 -->
+  <div id="insufficientHoldingsModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 transform transition-all">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-danger/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa fa-exclamation-triangle text-2xl text-danger"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">持仓不足</h3>
+        <p class="text-neutral-500 mb-6">您的持仓数量不足以完成本次交易，请减少卖出数量</p>
+        
+        <button id="closeInsufficientBtn" class="w-full py-3 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition-colors">
+          我知道了
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 页脚 -->
+  <footer class="bg-white border-t border-neutral-200 mt-12">
+    <div class="container mx-auto px-4 py-6 text-center text-neutral-500 text-sm">
+      <p>© 2023 StockTrader Pro. 版权所有</p>
+      <p class="mt-1">免责声明：本网站提供的信息仅供参考，不构成任何投资建议</p>
+    </div>
+  </footer>
+
+  <script>
+    // 股票持仓数据
+    const stockHoldings = {
+      '600519': {
+        amount: 100,
+        cost: 1680.50
+      },
+      '000858': {
+        amount: 500,
+        cost: 165.50
+      },
+      '000568': {
+        amount: 300,
+        cost: 241.80
+      },
+      '600809': {
+        amount: 200,
+        cost: 290.20
+      },
+      '002304': {
+        amount: 300,
+        cost: 143.80
+      }
+    };
+    
+    // 股票价格映射表
+    const stockPrices = {
+      '600519': 1728.00,
+      '000858': 168.20,
+      '000568': 235.60,
+      '600809': 298.50,
+      '002304': 142.60
+    };
+    
+    // 数量选择逻辑
+    const sellAmountInput = document.getElementById('sellAmount');
+    const decreaseBtn = document.getElementById('decreaseBtn');
+    const increaseBtn = document.getElementById('increaseBtn');
+    const totalAmountEl = document.getElementById('totalAmount');
+    const netTotalEl = document.getElementById('netTotal');
+    const quickAmountBtns = document.querySelectorAll('.quick-amount:not(#sellAllBtn)');
+    const sellAllBtn = document.getElementById('sellAllBtn');
+    const confirmSellBtn = document.getElementById('confirmSellBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const successModal = document.getElementById('successModal');
+    const insufficientHoldingsModal = document.getElementById('insufficientHoldingsModal');
+    const viewOrderBtn = document.getElementById('viewOrderBtn');
+    const closeInsufficientBtn = document.getElementById('closeInsufficientBtn');
+    const stockSelect = document.getElementById('stockSelect');
+    const holdingsAmountEl = document.getElementById('holdingsAmount');
+    
+    // 更新持仓信息
+    function updateHoldingsInfo() {
+      const stockId = stockSelect.value;
+      const holdings = stockHoldings[stockId];
+      const price = stockPrices[stockId];
+      
+      // 更新持仓数量显示
+      holdingsAmountEl.textContent = `${holdings.amount} 股`;
+      
+      // 更新卖出数量最大值
+      sellAmountInput.max = holdings.amount;
+      
+      // 重置卖出数量为最大可卖数量
+      sellAmountInput.value = holdings.amount;
+      
+      // 更新金额信息
+      updateTotalAmount();
+      
+      // 更新快捷按钮状态
+      updateQuickButtons();
+    }
+    
+    // 更新快捷按钮状态
+    function updateQuickButtons() {
+      const maxAmount = parseInt(sellAmountInput.max);
+      quickAmountBtns.forEach(btn => {
+        const amount = parseInt(btn.textContent);
+        if (amount > maxAmount) {
+          btn.classList.add('bg-neutral-300', 'text-neutral-500', 'cursor-not-allowed');
+          btn.classList.remove('bg-neutral-100', 'hover:bg-neutral-200');
+        } else {
+          btn.classList.remove('bg-neutral-300', 'text-neutral-500', 'cursor-not-allowed');
+          btn.classList.add('bg-neutral-100', 'hover:bg-neutral-200');
+        }
+      });
+    }
+    
+    // 更新总金额
+    function updateTotalAmount() {
+      const amount = parseInt(sellAmountInput.value);
+      const stockId = stockSelect.value;
+      const price = stockPrices[stockId];
+      const totalAmount = amount * price;
+      const fee = totalAmount * 0.0001; // 手续费0.01%
+      const stampTax = totalAmount * 0.001; // 印花税0.1%
+      const netTotal = totalAmount - fee - stampTax;
+      
+      totalAmountEl.textContent = `¥${totalAmount.toFixed(2)}`;
+      netTotalEl.textContent = `¥${netTotal.toFixed(2)}`;
+    }
+    
+    // 减少数量
+    decreaseBtn.addEventListener('click', function() {
+      let currentValue = parseInt(sellAmountInput.value);
+      const minValue = parseInt(sellAmountInput.min);
+      if (currentValue > minValue) {
+        sellAmountInput.value = currentValue - 100;
+        updateTotalAmount();
+      }
+    });
+    
+    // 增加数量
+    increaseBtn.addEventListener('click', function() {
+      let currentValue = parseInt(sellAmountInput.value);
+      const maxValue = parseInt(sellAmountInput.max);
+      if (currentValue < maxValue) {
+        sellAmountInput.value = currentValue + 100;
+        updateTotalAmount();
+      }
+    });
+    
+    // 输入框值变化时更新
+    sellAmountInput.addEventListener('change', function() {
+      // 确保值在有效范围内且是100的倍数
+      let value = parseInt(this.value);
+      const minValue = parseInt(this.min);
+      const maxValue = parseInt(this.max);
+      
+      if (isNaN(value) || value < minValue) {
+        value = minValue;
+      } else if (value > maxValue) {
+        value = maxValue;
+      } else if (value % 100 !== 0) {
+        value = Math.round(value / 100) * 100;
+        // 确保四舍五入后仍在有效范围内
+        if (value > maxValue) value = maxValue;
+        if (value < minValue) value = minValue;
+      }
+      
+      this.value = value;
+      updateTotalAmount();
+    });
+    
+    // 快捷数量选择
+    quickAmountBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        if (!this.classList.contains('cursor-not-allowed')) {
+          sellAmountInput.value = this.textContent;
+          updateTotalAmount();
+        }
+      });
+    });
+    
+    // 全部卖出
+    sellAllBtn.addEventListener('click', function() {
+      sellAmountInput.value = sellAmountInput.max;
+      updateTotalAmount();
+    });
+    
+    // 股票选择变化时更新
+    stockSelect.addEventListener('change', function() {
+      // 更新持仓信息
+      updateHoldingsInfo();
+    });
+    
+    // 确认卖出
+    confirmSellBtn.addEventListener('click', function() {
+      // 检查持仓是否充足
+      const sellAmount = parseInt(sellAmountInput.value);
+      const maxAmount = parseInt(sellAmountInput.max);
+      
+      if (sellAmount <= maxAmount) {
+        // 持仓充足，显示成功弹窗
+        successModal.classList.remove('hidden');
+        successModal.classList.add('flex');
+      } else {
+        // 持仓不足，显示提示弹窗
+        insufficientHoldingsModal.classList.remove('hidden');
+        insufficientHoldingsModal.classList.add('flex');
+      }
+    });
+    
+    // 取消按钮
+    cancelBtn.addEventListener('click', function() {
+      window.history.back();
+    });
+    
+    // 查看订单按钮
+    viewOrderBtn.addEventListener('click', function() {
+      successModal.classList.add('hidden');
+      successModal.classList.remove('flex');
+      // 实际应用中跳转到订单页面
+      alert('跳转到订单页面');
+    });
+    
+    // 关闭持仓不足弹窗
+    closeInsufficientBtn.addEventListener('click', function() {
+      insufficientHoldingsModal.classList.add('hidden');
+      insufficientHoldingsModal.classList.remove('flex');
+    });
+    
+    // 点击弹窗外部关闭
+    [successModal, insufficientHoldingsModal].forEach(modal => {
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+        }
+      });
+    });
+    
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', function() {
+      updateHoldingsInfo();
+    });
+  </script>
+
+
+</body></html>
