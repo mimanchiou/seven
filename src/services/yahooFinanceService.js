@@ -32,10 +32,10 @@ class YahooFinanceService {
     }
   }
 
-  // 获取当前价格
+  // 获取当前价格 - 修改为返回完整OHLC数据
   async getCurrentPrice(symbol) {
     try {
-      console.log(`📊 Yahoo Finance获取 ${symbol} 实时价格`);
+      console.log(`📊 Yahoo Finance获取 ${symbol} 完整实时价格`);
       
       const quote = await this.retryApiCall(() => yahooFinance.quote(symbol));
       
@@ -48,6 +48,10 @@ class YahooFinanceService {
       
       return {
         price: price,
+        open: quote.regularMarketOpen || price,           // 开盘价
+        high: quote.regularMarketDayHigh || price,        // 最高价
+        low: quote.regularMarketDayLow || price,          // 最低价
+        close: price,                                     // 收盘价（当前价格）
         change: quote.regularMarketChange || 0,
         changePercent: quote.regularMarketChangePercent || 0,
         volume: quote.regularMarketVolume || 0,
@@ -62,7 +66,7 @@ class YahooFinanceService {
     }
   }
 
-  // 修复后的获取历史数据 - 提供更多数据点用于折线图
+  // 获取历史数据 - 保持不变
   async getHistoryByDays(ticker, days) {
     try {
       console.log(`📈 Yahoo Finance获取 ${ticker} ${days}天历史数据`);
@@ -71,21 +75,20 @@ class YahooFinanceService {
       const period1 = new Date();
       period1.setDate(period1.getDate() - days);
       
-      // 根据天数设置不同的间隔，获取更多数据点
       let interval;
       let expectedDataPoints;
       
       if (days === 1) {
-        interval = '2m';  // 2分钟间隔，1天约195个数据点
+        interval = '2m';
         expectedDataPoints = 195;
       } else if (days === 3) {
-        interval = '5m';  // 5分钟间隔，3天约576个数据点
+        interval = '5m';
         expectedDataPoints = 576;
       } else if (days === 5) {
-        interval = '15m'; // 15分钟间隔，5天约320个数据点
+        interval = '15m';
         expectedDataPoints = 320;
       } else {
-        interval = '1d';  // 默认日线
+        interval = '1d';
         expectedDataPoints = days;
       }
       
@@ -108,7 +111,6 @@ class YahooFinanceService {
         throw new Error(`Yahoo Finance未返回${ticker}的历史数据`);
       }
 
-      // 处理数据格式，保留所有有效数据点
       const historicalData = chart.quotes
         .filter(quote => quote.close !== null && quote.close !== undefined)
         .map(quote => ({
@@ -121,10 +123,8 @@ class YahooFinanceService {
         }))
         .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
-      // 不再限制数据点数量，返回所有数据用于折线图
       console.log(`✅ Yahoo Finance返回 ${historicalData.length} 个数据点 (预期约${expectedDataPoints}个)`);
       
-      // 添加数据质量信息
       const dataQuality = {
         actualPoints: historicalData.length,
         expectedPoints: expectedDataPoints,
@@ -146,11 +146,10 @@ class YahooFinanceService {
     }
   }
 
-  // 搜索股票
+  // 其他方法保持不变
   async searchSymbols(keywords) {
     try {
       console.log(`🔍 Yahoo Finance搜索: ${keywords}`);
-      
       const results = await this.retryApiCall(() => yahooFinance.search(keywords));
       
       if (!results || !results.quotes || results.quotes.length === 0) {
@@ -177,11 +176,9 @@ class YahooFinanceService {
     }
   }
 
-  // 获取公司概况
   async getCompanyOverview(symbol) {
     try {
       console.log(`🏢 Yahoo Finance获取 ${symbol} 公司信息`);
-      
       const quote = await this.retryApiCall(() => yahooFinance.quote(symbol));
       
       if (!quote || !quote.symbol) {
@@ -212,11 +209,9 @@ class YahooFinanceService {
     }
   }
 
-  // 获取推荐/趋势股票
   async getTrendingSymbols(region = 'US', count = 10) {
     try {
       console.log(`📈 Yahoo Finance获取趋势股票: ${region}`);
-      
       const queryOptions = { count: parseInt(count), lang: "en-US" };
       const trending = await this.retryApiCall(() => yahooFinance.trendingSymbols(region, queryOptions));
       
@@ -225,7 +220,6 @@ class YahooFinanceService {
       }
 
       const trendingStocks = trending.finance.result[0].quotes || [];
-      
       const results = trendingStocks.map(quote => ({
         symbol: quote.symbol,
         name: quote.shortName || quote.longName || quote.symbol,
@@ -243,11 +237,9 @@ class YahooFinanceService {
     }
   }
 
-  // 获取股票推荐
   async getRecommendations(symbol) {
     try {
       console.log(`💡 Yahoo Finance获取 ${symbol} 推荐信息`);
-      
       const recommendations = await this.retryApiCall(() => yahooFinance.recommendationsBySymbol(symbol));
       
       console.log(`✅ Yahoo Finance返回 ${symbol} 推荐信息`);
@@ -281,7 +273,6 @@ class YahooFinanceService {
     }
   }
 
-  // 判断是否为可重试的错误
   isRetryableError(error) {
     const retryableMessages = [
       'status 403',
@@ -297,7 +288,6 @@ class YahooFinanceService {
     );
   }
 
-  // 睡眠函数
   sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }

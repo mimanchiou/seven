@@ -1,8 +1,8 @@
-
+// 修改后的 historyController.js - 只修改getCurrentPrice方法
 const yahooFinanceService = require('../services/yahooFinanceService');
 
 class HistoryController {
-  // 快速获取图表数据 - 只返回时间和最高价
+  // 快速获取图表数据 - 只返回时间和最高价（保持不变）
   static async getQuickChartData(req, res) {
     try {
       const { ticker, days } = req.params;
@@ -90,7 +90,7 @@ class HistoryController {
           },
           
           source: historyData.source,
-          provider: 'Yahoo Finance',
+          provider: 'Yahoo Finance (免费无限制)',
           
           // 使用说明
           usage: {
@@ -114,7 +114,51 @@ class HistoryController {
     }
   }
 
-  // 搜索股票 - 使用Yahoo Finance
+  // 获取实时价格 - 修改为返回完整的OHLC数据
+  static async getCurrentPrice(req, res) {
+    try {
+      const { ticker } = req.params;
+      
+      console.log(`💰 Yahoo Finance获取实时价格: ${ticker}`);
+      const priceData = await yahooFinanceService.getCurrentPrice(ticker);
+
+      res.json({
+        success: true,
+        data: {
+          symbol: ticker.toUpperCase(),
+          
+          // 完整价格信息
+          current: priceData.price,           // 当前价格
+          open: priceData.open,               // 开盘价
+          high: priceData.high,               // 最高价
+          low: priceData.low,                 // 最低价
+          close: priceData.close,             // 收盘价
+          previousClose: priceData.previousClose, // 前收盘价
+          
+          // 价格变化
+          change: priceData.change,
+          changePercent: priceData.changePercent,
+          
+          // 交易信息
+          volume: priceData.volume,
+          marketCap: priceData.marketCap,
+          currency: priceData.currency,
+          
+          timestamp: new Date(),
+          provider: 'Yahoo Finance'
+        }
+      });
+    } catch (error) {
+      console.error('❌ Yahoo Finance获取实时价格失败:', error.message);
+      res.status(503).json({
+        success: false,
+        error: 'Yahoo Finance价格API不可用',
+        details: error.message
+      });
+    }
+  }
+
+  // 其他方法保持不变
   static async searchStocks(req, res) {
     try {
       const { q } = req.query;
@@ -149,7 +193,6 @@ class HistoryController {
     }
   }
 
-  // 获取股票详细信息 - 使用Yahoo Finance
   static async getStockInfo(req, res) {
     try {
       const { ticker } = req.params;
@@ -175,34 +218,6 @@ class HistoryController {
     }
   }
 
-  // 获取实时价格 - 使用Yahoo Finance
-  static async getCurrentPrice(req, res) {
-    try {
-      const { ticker } = req.params;
-      
-      console.log(`💰 Yahoo Finance获取实时价格: ${ticker}`);
-      const priceData = await yahooFinanceService.getCurrentPrice(ticker);
-
-      res.json({
-        success: true,
-        data: {
-          symbol: ticker.toUpperCase(),
-          ...priceData,
-          timestamp: new Date(),
-          provider: 'Yahoo Finance'
-        }
-      });
-    } catch (error) {
-      console.error('❌ Yahoo Finance获取实时价格失败:', error.message);
-      res.status(503).json({
-        success: false,
-        error: 'Yahoo Finance价格API不可用',
-        details: error.message
-      });
-    }
-  }
-
-  // 获取趋势股票 - 新增功能
   static async getTrendingStocks(req, res) {
     try {
       const { region = 'US', count = 10 } = req.query;
@@ -230,7 +245,6 @@ class HistoryController {
     }
   }
 
-  // 获取股票推荐 - 新增功能
   static async getRecommendations(req, res) {
     try {
       const { ticker } = req.params;
@@ -257,7 +271,6 @@ class HistoryController {
     }
   }
 
-  // 添加股票到数据库 - 使用Yahoo Finance验证
   static async addStock(req, res) {
     try {
       const { ticker, fetchData = false } = req.body;
@@ -269,7 +282,6 @@ class HistoryController {
         });
       }
 
-      // 使用Yahoo Finance验证股票代码
       console.log(`✅ Yahoo Finance验证股票代码: ${ticker}`);
       const stockInfo = await yahooFinanceService.getCompanyOverview(ticker);
 
@@ -293,7 +305,6 @@ class HistoryController {
     }
   }
 
-  // 获取股票历史数据 - 数据库版本
   static async getStockHistory(req, res) {
     try {
       const { id } = req.params;
