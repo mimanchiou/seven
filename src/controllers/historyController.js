@@ -1,8 +1,8 @@
-// 使用Yahoo Finance API，完全免费无限制
+
 const yahooFinanceService = require('../services/yahooFinanceService');
 
 class HistoryController {
-  // 快速获取图表数据 - 使用Yahoo Finance
+  // 快速获取图表数据 - 只返回时间和最高价
   static async getQuickChartData(req, res) {
     try {
       const { ticker, days } = req.params;
@@ -19,31 +19,51 @@ class HistoryController {
       // 使用Yahoo Finance获取历史数据
       const historyData = await yahooFinanceService.getHistoryByDays(ticker, parseInt(days));
 
-      // 图表数据格式
+      // 提取时间和最高价数据
+      const pricePoints = historyData.data.map(item => ({
+        time: item.timestamp.toISOString(),
+        price: item.high // 只使用最高价
+      }));
+
+      // 图表数据格式 - 简化版本
       const chartData = {
-        labels: historyData.data.map(item => {
-          const date = new Date(item.timestamp);
+        labels: pricePoints.map(point => {
+          const date = new Date(point.time);
           return parseInt(days) === 1 
-            ? date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
-            : date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+            ? date.toLocaleTimeString('zh-CN', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false 
+              })
+            : date.toLocaleDateString('zh-CN', { 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              });
         }),
         datasets: [{
-          label: `${ticker} 股价`,
-          data: historyData.data.map(item => item.close),
-          borderColor: 'rgb(34, 197, 94)', // 绿色表示Yahoo Finance
-          backgroundColor: 'rgba(34, 197, 94, 0.1)',
-          tension: 0.1
+          label: `${ticker} 最高价`,
+          data: pricePoints.map(point => point.price),
+          borderColor: 'rgb(220, 38, 127)', // 粉红色表示最高价
+          backgroundColor: 'rgba(220, 38, 127, 0.1)',
+          tension: 0.1,
+          pointRadius: 1,
+          pointHoverRadius: 4
         }]
       };
 
-      // 统计信息
-      const prices = historyData.data.map(item => item.close);
+      // 计算统计信息
+      const prices = pricePoints.map(point => point.price);
       const stats = {
-        currentPrice: prices[prices.length - 1],
-        highestPrice: Math.max(...prices),
-        lowestPrice: Math.min(...prices),
-        priceChange: prices[prices.length - 1] - prices[0],
-        priceChangePercent: ((prices[prices.length - 1] - prices[0]) / prices[0] * 100).toFixed(2)
+        currentPrice: prices[prices.length - 1], // 最新最高价
+        highestPrice: Math.max(...prices),       // 期间最高点
+        lowestPrice: Math.min(...prices),        // 期间最低点
+        priceChange: prices[prices.length - 1] - prices[0], // 价格变化
+        priceChangePercent: (((prices[prices.length - 1] - prices[0]) / prices[0]) * 100).toFixed(2), // 变化百分比
+        dataPointsCount: prices.length,          // 数据点数量
+        startTime: pricePoints[0]?.time,         // 开始时间
+        endTime: pricePoints[pricePoints.length - 1]?.time // 结束时间
       };
 
       res.json({
@@ -51,11 +71,34 @@ class HistoryController {
         data: {
           ticker: ticker.toUpperCase(),
           period: `${days}天`,
+          
+          // 主要图表数据
           chartData: chartData,
-          rawData: historyData.data,
+          
+          // 简化的数据点 - 只包含时间和最高价
+          pricePoints: pricePoints,
+          
+          // 统计信息
           stats: stats,
+          
+          // 数据质量信息
+          quality: {
+            dataPoints: pricePoints.length,
+            interval: historyData.quality?.interval || '未知',
+            timeRange: `${stats.startTime?.split('T')[0]} 到 ${stats.endTime?.split('T')[0]}`,
+            coverage: historyData.quality?.coverage || 100
+          },
+          
           source: historyData.source,
-          provider: 'Yahoo Finance (免费无限制)'
+          provider: 'Yahoo Finance',
+          
+          // 使用说明
+          usage: {
+            description: "只返回时间和最高价数据",
+            chartData: "使用 chartData 直接绘制图表",
+            rawData: "使用 pricePoints 获取原始时间和价格对",
+            example: "pricePoints[0] = { time: '2025-07-28T13:06:00.000Z', price: 214.2 }"
+          }
         }
       });
 
@@ -260,7 +303,7 @@ class HistoryController {
         success: false,
         error: '需要完整的数据库集成来支持此功能',
         message: '请使用 /api/quick-chart/:ticker/:days 获取历史数据',
-        suggestion: '当前使用Yahoo Finance提供免费无限制的股票数据'
+        suggestion: '当前使用Yahoo Finance提供股票数据'
       });
     } catch (error) {
       res.status(500).json({
