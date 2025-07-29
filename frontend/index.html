@@ -69,19 +69,6 @@
         <i class="fa fa-line-chart text-primary text-2xl"></i>
         <h1 class="text-xl font-bold text-neutral-700">StockTrader Pro</h1>
       </div>
-      
-      <div class="flex items-center space-x-6">
-        <button class="text-neutral-500 hover:text-primary transition-colors">
-          <i class="fa fa-bell-o"></i>
-        </button>
-        <button class="text-neutral-500 hover:text-primary transition-colors">
-          <i class="fa fa-cog"></i>
-        </button>
-        <div class="flex items-center space-x-2">
-          <img src="https://picsum.photos/id/1005/40/40" alt="用户头像" class="w-8 h-8 rounded-full object-cover border-2 border-primary">
-          <span class="font-medium">张经理</span>
-        </div>
-      </div>
     </div>
   </header>
 
@@ -92,85 +79,42 @@
       <!-- 账户概览卡片 -->
       <div class="bg-white rounded-xl shadow-sm p-5 card-hover">
         <h2 class="text-lg font-semibold mb-4 flex items-center">
-          <i class="fa fa-wallet text-primary mr-2"></i>账户概览
+          <i class="fa fa-wallet text-primary mr-2"></i>Account Overview
         </h2>
         
         <div class="space-y-4">
           <div>
-            <p class="text-neutral-500 text-sm">总资产</p>
+            <p class="text-neutral-500 text-sm">Total Assets</p>
             <p class="text-2xl font-bold">¥128,560.45</p>
           </div>
           
           <div class="grid grid-cols-2 gap-4">
             <div class="bg-neutral-100 rounded-lg p-3">
-              <p class="text-neutral-500 text-sm">可用现金</p>
+              <p class="text-neutral-500 text-sm">Available Cash</p>
               <p class="text-lg font-semibold">¥54,230.12</p>
             </div>
             <div class="bg-neutral-100 rounded-lg p-3">
-              <p class="text-neutral-500 text-sm">投资总额</p>
+              <p class="text-neutral-500 text-sm">Total Investment</p>
               <p class="text-lg font-semibold">¥74,330.33</p>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- 现金流水 -->
-      <div class="bg-white rounded-xl shadow-sm p-5 card-hover">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-semibold flex items-center">
-            <i class="fa fa-money text-primary mr-2"></i>现金流水
-          </h2>
-          <button class="text-primary text-sm hover:underline">查看全部</button>
-        </div>
-        
-        <div class="space-y-4 max-h-64 overflow-y-auto scrollbar-hide pr-2">
-          <div class="flex justify-between items-center pb-2 border-b border-neutral-100">
-            <div>
-              <p class="font-medium">充值</p>
-              <p class="text-neutral-500 text-sm">2023-06-15 09:30</p>
-            </div>
-            <p class="text-success font-semibold">+¥10,000.00</p>
-          </div>
-          
-          <div class="flex justify-between items-center pb-2 border-b border-neutral-100">
-            <div>
-              <p class="font-medium">提现</p>
-              <p class="text-neutral-500 text-sm">2023-06-10 14:45</p>
-            </div>
-            <p class="text-danger font-semibold">-¥5,000.00</p>
-          </div>
-          
-          <div class="flex justify-between items-center pb-2 border-b border-neutral-100">
-            <div>
-              <p class="font-medium">股票分红</p>
-              <p class="text-neutral-500 text-sm">2023-06-05 16:20</p>
-            </div>
-            <p class="text-success font-semibold">+¥320.55</p>
-          </div>
-          
-          <div class="flex justify-between items-center pb-2 border-b border-neutral-100">
-            <div>
-              <p class="font-medium">充值</p>
-              <p class="text-neutral-500 text-sm">2023-06-01 10:15</p>
-            </div>
-            <p class="text-success font-semibold">+¥50,000.00</p>
-          </div>
-        </div>
-      </div>
-      
+     
       <!-- 投资记录 -->
       <div class="bg-white rounded-xl shadow-sm p-5 card-hover">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-semibold flex items-center">
-            <i class="fa fa-history text-primary mr-2"></i>投资记录
+            <i class="fa fa-history text-primary mr-2"></i>Investment History
           </h2>
-          <button class="text-primary text-sm hover:underline">查看全部</button>
+          <button class="text-primary text-sm hover:underline">View All</button>
         </div>
         
         <div class="space-y-4 max-h-64 overflow-y-auto scrollbar-hide pr-2">
           <div class="flex justify-between items-center pb-2 border-b border-neutral-100">
             <div>
-              <p class="font-medium">买入 贵州茅台</p>
+              <p class="font-medium">Buy 贵州茅台</p>
               <p class="text-neutral-500 text-sm">2023-06-14 14:25</p>
             </div>
             <p class="text-danger font-semibold">-¥15,200.00</p>
@@ -178,7 +122,7 @@
           
           <div class="flex justify-between items-center pb-2 border-b border-neutral-100">
             <div>
-              <p class="font-medium">卖出 腾讯控股</p>
+              <p class="font-medium">Sell 腾讯控股</p>
               <p class="text-neutral-500 text-sm">2023-06-12 10:18</p>
             </div>
             <p class="text-success font-semibold">+¥8,750.30</p>
@@ -214,13 +158,9 @@
         
         <!-- 时间范围选择器 -->
         <div class="flex space-x-2 mb-4 overflow-x-auto scrollbar-hide pb-2">
-          <button class="px-3 py-1 bg-primary text-white rounded-full text-sm whitespace-nowrap">1天</button>
-          <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-full text-sm whitespace-nowrap transition-colors">1周</button>
-          <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-full text-sm whitespace-nowrap transition-colors">1月</button>
-          <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-full text-sm whitespace-nowrap transition-colors">3月</button>
-          <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-full text-sm whitespace-nowrap transition-colors">1年</button>
-          <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-full text-sm whitespace-nowrap transition-colors">5年</button>
-          <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-full text-sm whitespace-nowrap transition-colors">全部</button>
+          <button class="px-3 py-1 bg-primary text-white rounded-full text-sm whitespace-nowrap">one day ago</button>
+          <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-full text-sm whitespace-nowrap transition-colors">three days ago</button>
+          <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-full text-sm whitespace-nowrap transition-colors">five days ago</button>
         </div>
         
         <!-- 股票图表 -->
@@ -235,99 +175,69 @@
         <!-- 股票价格详情 -->
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mt-6 text-center">
           <div class="p-3 bg-neutral-100 rounded-lg">
-            <p class="text-neutral-500 text-sm">开盘价</p>
-            <p class="font-semibold">1705.50</p>
+            <p class="text-neutral-500 text-sm">opening price</p>
+            <p class="font-semibold"></p>
           </div>
           <div class="p-3 bg-neutral-100 rounded-lg">
-            <p class="text-neutral-500 text-sm">收盘价</p>
-            <p class="font-semibold">1728.00</p>
+            <p class="text-neutral-500 text-sm">closing price</p>
+            <p class="font-semibold"></p>
           </div>
           <div class="p-3 bg-neutral-100 rounded-lg">
-            <p class="text-neutral-500 text-sm">最高价</p>
-            <p class="font-semibold text-success">1732.50</p>
+            <p class="text-neutral-500 text-sm">highest price</p>
+            <p class="font-semibold text-success"></p>
           </div>
           <div class="p-3 bg-neutral-100 rounded-lg">
-            <p class="text-neutral-500 text-sm">最低价</p>
-            <p class="font-semibold text-danger">1698.00</p>
+            <p class="text-neutral-500 text-sm">lowest price</p>
+            <p class="font-semibold text-danger"></p>
           </div>
           <div class="p-3 bg-neutral-100 rounded-lg md:col-span-1 col-span-2">
-            <p class="text-neutral-500 text-sm">更新时间</p>
-            <p class="font-semibold">2023-06-15 15:00</p>
+            <p class="text-neutral-500 text-sm">update time</p>
+            <p class="font-semibold"></p>
           </div>
         </div>
         
         <!-- 交易操作区 -->
         <div class="mt-6 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
           <div class="flex-1">
-            <label for="stockType" class="block text-sm text-neutral-500 mb-1">股票类型</label>
+            <label for="stockType" class="block text-sm text-neutral-500 mb-1">Stock Types</label>
             <select id="stockType" class="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
-              <option value="600519">贵州茅台 (600519)</option>
-              <option value="000858">五 粮 液 (000858)</option>
-              <option value="000568">泸州老窖 (000568)</option>
-              <option value="600809">山西汾酒 (600809)</option>
-              <option value="002304">洋河股份 (002304)</option>
+              <option value="TSLA" selected="" id="TSLA">TSLA</option>
+              <option value="AAPL" id="AAPL">AAPL</option>
+              <option value="IBM" id="IBM">IBM</option>
+              <option value="GOOGL" id="GOOGL">GOOGL</option>
+              <option value="NKE" id="NKE">NKE</option>
             </select>
           </div>
           
           <div class="flex gap-3 w-full sm:w-auto">
             <button class="flex-1 sm:flex-none px-6 py-2 bg-success hover:bg-success/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center"
             onclick="window.location.href='buy-stock.html'">
-              <i class="fa fa-plus-circle mr-2"></i>买入
+              <i class="fa fa-plus-circle mr-2"></i>buy
             </button>
             <button class="flex-1 sm:flex-none px-6 py-2 bg-danger hover:bg-danger/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center"
             onclick="window.location.href='sell-stock.html'">
-              <i class="fa fa-minus-circle mr-2"></i>卖出
+              <i class="fa fa-minus-circle mr-2"></i>sell
             </button>
           </div>
         </div>
       </div>
-      
-      <!-- 交易表单模态框 (默认隐藏) -->
-      <div id="tradeModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+       <!-- 交易表单模态框 (默认隐藏) -->
+       <div id="tradeModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 transform transition-all">
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-bold" id="modalTitle">买入股票</h3>
-            <button id="closeModal" class="text-neutral-500 hover:text-neutral-700">
-              <i class="fa fa-times text-xl"></i>
-            </button>
           </div>
-          
-          <div class="mb-4">
-            <p class="text-lg font-semibold" id="modalStockName">贵州茅台 (600519)</p>
-            <p class="text-2xl font-bold" id="modalStockPrice">¥1728.00</p>
-          </div>
-          
-          <div class="mb-4">
-            <label class="block text-sm text-neutral-500 mb-1">数量</label>
-            <div class="flex">
-              <button class="w-10 h-10 border border-neutral-300 rounded-l-lg flex items-center justify-center hover:bg-neutral-100 transition-colors">
-                <i class="fa fa-minus"></i>
-              </button>
-              <input type="number" value="100" min="100" step="100" class="flex-1 border-t border-b border-neutral-300 text-center py-2 focus:outline-none">
-              <button class="w-10 h-10 border border-neutral-300 rounded-r-lg flex items-center justify-center hover:bg-neutral-100 transition-colors">
-                <i class="fa fa-plus"></i>
-              </button>
-            </div>
-          </div>
-          
-          <div class="mb-6">
-            <p class="text-sm text-neutral-500 mb-1">总额</p>
-            <p class="text-xl font-bold">¥172,800.00</p>
-          </div>
-          
-          <button class="w-full py-3 bg-success hover:bg-success/90 text-white rounded-lg font-medium transition-colors">
-            确认买入
-          </button>
+         
         </div>
       </div>
     </section>
+    
     
     <!-- 右侧：持仓股票列表 -->
     <section class="col-span-12 lg:col-span-3 space-y-6">
       <!-- 持仓概览 -->
       <div class="bg-white rounded-xl shadow-sm p-5 card-hover">
         <h2 class="text-lg font-semibold mb-4 flex items-center">
-          <i class="fa fa-pie-chart text-primary mr-2"></i>持仓概览
+          <i class="fa fa-pie-chart text-primary mr-2"></i>Position Overview
         </h2>
         
         <div class="space-y-4">
@@ -337,11 +247,11 @@
           
           <div class="grid grid-cols-2 gap-4 text-center">
             <div>
-              <p class="text-neutral-500 text-sm">持仓数量</p>
+              <p class="text-neutral-500 text-sm"> Position Quantity</p>
               <p class="text-xl font-bold">5 只</p>
             </div>
             <div>
-              <p class="text-neutral-500 text-sm">当日收益</p>
+              <p class="text-neutral-500 text-sm">Daily Profit</p>
               <p class="text-xl font-bold text-success">+¥2,450.65</p>
             </div>
           </div>
@@ -352,7 +262,7 @@
       <div class="bg-white rounded-xl shadow-sm p-5 card-hover">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-semibold flex items-center">
-            <i class="fa fa-list-alt text-primary mr-2"></i>持仓股票
+            <i class="fa fa-list-alt text-primary mr-2"></i>Positioned Stockss
           </h2>
           <span class="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">5 只</span>
         </div>
@@ -363,7 +273,6 @@
             <div class="flex justify-between items-start">
               <div>
                 <h3 class="font-semibold">贵州茅台</h3>
-                <p class="text-neutral-500 text-sm">600519 · 沪市</p>
               </div>
               <div class="text-right">
                 <p class="font-semibold">1728.00</p>
@@ -373,141 +282,30 @@
             
             <div class="mt-2 grid grid-cols-3 text-sm">
               <div>
-                <p class="text-neutral-500">持仓</p>
+                <p class="text-neutral-500">Position</p>
                 <p>100 股</p>
               </div>
               <div>
-                <p class="text-neutral-500">成本</p>
+                <p class="text-neutral-500">Cost</p>
                 <p>1680.50</p>
               </div>
               <div>
-                <p class="text-neutral-500">收益</p>
+                <p class="text-neutral-500">Profit</p>
                 <p class="text-success">+¥4,750.00</p>
               </div>
             </div>
           </div>
-          
-          <div class="p-3 hover:bg-neutral-50 rounded-lg transition-colors cursor-pointer border-l-4 border-success">
-            <div class="flex justify-between items-start">
-              <div>
-                <h3 class="font-semibold">五 粮 液</h3>
-                <p class="text-neutral-500 text-sm">000858 · 深市</p>
-              </div>
-              <div class="text-right">
-                <p class="font-semibold">168.20</p>
-                <p class="text-success text-sm">+0.85%</p>
-              </div>
-            </div>
-            
-            <div class="mt-2 grid grid-cols-3 text-sm">
-              <div>
-                <p class="text-neutral-500">持仓</p>
-                <p>500 股</p>
-              </div>
-              <div>
-                <p class="text-neutral-500">成本</p>
-                <p>165.50</p>
-              </div>
-              <div>
-                <p class="text-neutral-500">收益</p>
-                <p class="text-success">+¥1,350.00</p>
-              </div>
-            </div>
           </div>
-          
-          <div class="p-3 hover:bg-neutral-50 rounded-lg transition-colors cursor-pointer border-l-4 border-danger">
-            <div class="flex justify-between items-start">
-              <div>
-                <h3 class="font-semibold">泸州老窖</h3>
-                <p class="text-neutral-500 text-sm">000568 · 深市</p>
-              </div>
-              <div class="text-right">
-                <p class="font-semibold">235.60</p>
-                <p class="text-danger text-sm">-1.23%</p>
-              </div>
-            </div>
-            
-            <div class="mt-2 grid grid-cols-3 text-sm">
-              <div>
-                <p class="text-neutral-500">持仓</p>
-                <p>300 股</p>
-              </div>
-              <div>
-                <p class="text-neutral-500">成本</p>
-                <p>241.80</p>
-              </div>
-              <div>
-                <p class="text-neutral-500">收益</p>
-                <p class="text-danger">-¥1,860.00</p>
-              </div>
-            </div>
           </div>
-          
-          <div class="p-3 hover:bg-neutral-50 rounded-lg transition-colors cursor-pointer border-l-4 border-success">
-            <div class="flex justify-between items-start">
-              <div>
-                <h3 class="font-semibold">山西汾酒</h3>
-                <p class="text-neutral-500 text-sm">600809 · 沪市</p>
-              </div>
-              <div class="text-right">
-                <p class="font-semibold">298.50</p>
-                <p class="text-success text-sm">+2.15%</p>
-              </div>
-            </div>
-            
-            <div class="mt-2 grid grid-cols-3 text-sm">
-              <div>
-                <p class="text-neutral-500">持仓</p>
-                <p>200 股</p>
-              </div>
-              <div>
-                <p class="text-neutral-500">成本</p>
-                <p>290.20</p>
-              </div>
-              <div>
-                <p class="text-neutral-500">收益</p>
-                <p class="text-success">+¥1,660.00</p>
-              </div>
-            </div>
-          </div>
-          
-          <div class="p-3 hover:bg-neutral-50 rounded-lg transition-colors cursor-pointer border-l-4 border-danger">
-            <div class="flex justify-between items-start">
-              <div>
-                <h3 class="font-semibold">洋河股份</h3>
-                <p class="text-neutral-500 text-sm">002304 · 深市</p>
-              </div>
-              <div class="text-right">
-                <p class="font-semibold">142.60</p>
-                <p class="text-danger text-sm">-0.52%</p>
-              </div>
-            </div>
-            
-            <div class="mt-2 grid grid-cols-3 text-sm">
-              <div>
-                <p class="text-neutral-500">持仓</p>
-                <p>300 股</p>
-              </div>
-              <div>
-                <p class="text-neutral-500">成本</p>
-                <p>143.80</p>
-              </div>
-              <div>
-                <p class="text-neutral-500">收益</p>
-                <p class="text-danger">-¥360.00</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+      </section>
   </main>
-  
+          
+         
   <!-- 页脚 -->
   <footer class="bg-white border-t border-neutral-200 mt-8">
     <div class="container mx-auto px-4 py-6 text-center text-neutral-500 text-sm">
-      <p>© 2023 StockTrader Pro. 版权所有</p>
-      <p class="mt-1">免责声明：本网站提供的信息仅供参考，不构成任何投资建议</p>
+      <p>our team</p>
+      <p class="mt-1">Zinnia Zhang. Zero Zhu. Benjie Zhao. Ivan Zhao. Diana Xu.</p>
     </div>
   </footer>
 
