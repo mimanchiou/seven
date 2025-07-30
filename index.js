@@ -8,7 +8,7 @@ const app = express();
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
-const PORT = 8080;
+const PORT =3000;
 
 app.use(express.json());
 app.use(express.json({ limit: '10mb' }));
@@ -20,12 +20,9 @@ const userRoutes = require('./routes/userRoutes.js');
 const portfolioItemRoutes = require('./routes/PortfolioItemRoutes.js');
 const stockDetailroutes = require('./routes/stockDetailRoutes.js');
 
-// 中间件设置
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://yourdomain.com'] 
-    : ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000'],
-  credentials: true
+  origin: 'http://127.0.0.1:5500', // 你的前端地址
+  credentials: true // 允许携带cookie（如果需要）
 }));
 
 app.use('/users', userRoutes);

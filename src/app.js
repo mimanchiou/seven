@@ -2,31 +2,31 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
-
-// Import configurations and services
 const HistoryController = require('./controllers/historyController');
 
 // Import routes
 const chartRoutes = require('./routes/chartRoutes');
-
+const userRoutes = require('../routes/userRoutes.js');
+const portfolioItemRoutes = require('../routes/PortfolioItemRoutes.js');
+const stockDetailroutes = require('../routes/stockDetailRoutes.js');
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// Middleware setup
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://yourdomain.com'] 
-    : ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000'],
-  credentials: true
+  origin: 'http://127.0.0.1:5500', // 你的前端地址
+  credentials: true // 允许携带cookie（如果需要）
 }));
+
+
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Static file service
 app.use(express.static(path.join(__dirname, '../public')));
+app.use('/users', userRoutes);
+app.use('/portfolio-items', portfolioItemRoutes);
+app.use('/stocks', stockDetailroutes);
 
-// Request logging middleware
 app.use((req, res, next) => {
   const timestamp = new Date().toISOString();
   console.log(`[${timestamp}] ${req.method} ${req.originalUrl}`);

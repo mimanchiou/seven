@@ -23,7 +23,7 @@ const { Sequelize } = require('sequelize');
 const sequelize = new Sequelize(
   'stocks',  // 数据库名
   'root',       // 用户名
-  '123456',       // 密码
+  'n3u3da!',       // 密码
   {
     host: 'localhost',   // 数据库主机
     dialect: 'mysql',    // 告诉 Sequelize 使用哪种数据库方言 ('mysql', 'postgres', 'sqlite', 'mariadb', 'mssql')

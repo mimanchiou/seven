@@ -181,10 +181,7 @@
           document.getElementById('availableCash').textContent = availableFunds;
           document.getElementById('investmentTotal').textContent = invested_funds;
           
-          // 切换显示状态
-          document.getElementById('accountLoading').classList.add('hidden');
-          document.getElementById('accountData').classList.remove('hidden');
-          
+         
         } catch (error) {
           console.error('账户数据加载错误:', error);
           // 显示错误提示
@@ -206,17 +203,17 @@
           <div class="space-y-4">
             <div>
               <p class="text-neutral-500 text-sm">总资产</p>
-              <p class="text-xl font-bold"></p>
+              <p id="totalAsset"class="text-xl font-bold"></p>
             </div>
             
             <div class="grid grid-cols-2 gap-4">
               <div class="bg-neutral-100 rounded-lg p-3">
                 <p class="text-neutral-500 text-sm">可用现金</p>
-                <p class="font-semibold"></p>
+                <p id="availableCash" class="font-semibold"></p>
               </div>
               <div class="bg-neutral-100 rounded-lg p-3">
                 <p class="text-neutral-500 text-sm">总投资</p>
-                <p class="font-semibold"></p>
+                <p id="investmentTotal" class="font-semibold"></p>
               </div>
             </div>
           </div>
