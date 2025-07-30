@@ -1,9 +1,27 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJSDoc = require('swagger-jsdoc');
 require('dotenv').config();
 const HistoryController = require('./controllers/historyController');
-
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'My API Documentation',
+      description: 'API documentation for my application',
+      version: '1.0.0',
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000'
+      }
+    ]
+  },
+    apis: [path.join(__dirname, '../routes/*.js'),__dirname + '/app.js']
+};
+const swaggerSpec = swaggerJSDoc(swaggerOptions);
 // Import routes
 const chartRoutes = require('./routes/chartRoutes');
 const userRoutes = require('../routes/userRoutes.js');
@@ -12,12 +30,12 @@ const stockDetailroutes = require('../routes/stockDetailRoutes.js');
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(cors({
-  origin: 'http://127.0.0.1:5500', // 你的前端地址
-  credentials: true // 允许携带cookie（如果需要）
+  origin: 'http://127.0.0.1:5500', // My frontend address
+  credentials: true // Allow cookies if needed
 }));
 
 
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -35,6 +53,16 @@ app.use((req, res, next) => {
 
 // Yahoo Finance service
 const yahooFinanceService = require('./services/yahooFinanceService');
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     summary: Get basic API information
+ *     tags: [System]
+ *     responses:
+ *       200:
+ *         description: Returns basic info and available endpoints
+ */
 
 // Basic routes
 app.get('/', (req, res) => {
@@ -51,6 +79,16 @@ app.get('/', (req, res) => {
     }
   });
 });
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: System health check
+ *     tags: [System]
+ *     responses:
+ *       200:
+ *         description: Returns the system health status
+ */
 
 app.get('/health', (req, res) => {
   res.json({
@@ -70,24 +108,145 @@ app.get('/health', (req, res) => {
 app.use('/api/chart', chartRoutes);
 
 // Quick chart data - core feature
+/**
+ * @swagger
+ * /api/quick-chart/{ticker}/{days}:
+ *   get:
+ *     summary: Get chart data for a specific stock
+ *     tags: [Charts]
+ *     parameters:
+ *       - in: path
+ *         name: ticker
+ *         required: true
+ *         description: Stock ticker symbol, e.g. AAPL
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: days
+ *         required: true
+ *         description: Number of days for chart data (1, 3, or 5)
+ *         schema:
+ *           type: integer
+ *           enum: [1, 3, 5]
+ *     responses:
+ *       200:
+ *         description: Successfully returns chart data
+ */
+
 app.get('/api/quick-chart/:ticker/:days', HistoryController.getQuickChartData);
 
 // Stock search API
+/**
+ * @swagger
+ * /api/stocks/search:
+ *   get:
+ *     summary: Search stocks by keyword
+ *     tags: [Stocks]
+ *     parameters:
+ *       - in: query
+ *         name: q
+ *         required: true
+ *         description: Search keyword, e.g. Apple
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Returns list of matching stocks
+ */
+
 app.get('/api/stocks/search', HistoryController.searchStocks);
 
 // Get stock detailed info
+/**
+ * @swagger
+ * /api/stocks/{ticker}/info:
+ *   get:
+ *     summary: Get detailed information for a stock
+ *     tags: [Stocks]
+ *     parameters:
+ *       - in: path
+ *         name: ticker
+ *         required: true
+ *         description: Stock ticker symbol, e.g. TSLA
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Returns detailed stock information
+ */
+
 app.get('/api/stocks/:ticker/info', HistoryController.getStockInfo);
 
 // Add stock to database
 app.post('/api/stocks', HistoryController.addStock);
 
 // Get trending stocks
+/**
+ * @swagger
+ * /api/stocks/trending:
+ *   get:
+ *     summary: Get trending stocks
+ *     tags: [Stocks]
+ *     parameters:
+ *       - in: query
+ *         name: region
+ *         required: false
+ *         description: Region code, e.g. US
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: count
+ *         required: false
+ *         description: Number of stocks to return
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Returns a list of trending stocks
+ */
+
 app.get('/api/stocks/trending', HistoryController.getTrendingStocks);
 
 // Get stock recommendations
+/**
+ * @swagger
+ * /api/stocks/{ticker}/recommendations:
+ *   get:
+ *     summary: Get stock recommendations related to a stock
+ *     tags: [Stocks]
+ *     parameters:
+ *       - in: path
+ *         name: ticker
+ *         required: true
+ *         description: Stock ticker symbol
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Returns stock recommendation data
+ */
+
 app.get('/api/stocks/:ticker/recommendations', HistoryController.getRecommendations);
 
 // Compatible quote API
+/**
+ * @swagger
+ * /api/quote/{symbol}:
+ *   get:
+ *     summary: Get real-time stock quote
+ *     tags: [Stocks]
+ *     parameters:
+ *       - in: path
+ *         name: symbol
+ *         required: true
+ *         description: Stock ticker symbol, e.g. MSFT
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successfully returns real-time stock quote
+ */
+
 app.get('/api/quote/:symbol', async (req, res) => {
   try {
     const { symbol } = req.params;
