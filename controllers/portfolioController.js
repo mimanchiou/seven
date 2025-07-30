@@ -37,7 +37,8 @@ class PortfolioController {
   // 卖出股票
   async sellStock(req, res) {
     try {
-      const { sellPrice } = req.body;
+      const { stocks_name, quantity, sellPrice } = req.body;
+      console.log(`卖出股票: ${stocks_name}, 数量: ${quantity}, 卖出价格: ${sellPrice}`);
       if (typeof sellPrice !== 'number' || sellPrice <= 0) {
         return res.status(400).json({
           success: false,
@@ -46,7 +47,8 @@ class PortfolioController {
       }
       
       const result = await portfolioService.sellStock(
-        req.params.itemId,
+        stocks_name,
+        quantity,
         sellPrice
       );
       

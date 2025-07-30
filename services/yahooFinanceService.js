@@ -1,4 +1,4 @@
-const yahooFinance = require('yahoo-finance2');
+const yahooFinance = require('yahoo-finance2').default;
 
 class YahooFinanceService {
   constructor() {

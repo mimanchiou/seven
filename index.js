@@ -6,6 +6,7 @@ const yahooFinanceService = require('./services/yahooFinanceService.js');
 const HistoryController = require('./controllers/historyController');
 const app = express();
 const cors = require('cors');
+app.use(cors());
 const path = require('path');
 require('dotenv').config();
 const PORT = 8080;
