@@ -1,0 +1,478 @@
+<html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>买入股票 - StockTrader Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <!-- 配置Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            success: '#52C41A',
+            danger: '#FF4D4F',
+            neutral: {
+              100: '#F5F7FA',
+              200: '#E4E6EB',
+              300: '#C9CDD4',
+              400: '#86909C',
+              500: '#4E5969',
+              600: '#272E3B',
+              700: '#1D2129',
+            }
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .card-hover {
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      .card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+      .number-input-spin {
+        user-select: none;
+      }
+    }
+  </style>
+</head>
+<body class="font-inter bg-neutral-100 text-neutral-700 min-h-screen">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-line-chart text-primary text-2xl"></i>
+        <h1 class="text-xl font-bold text-neutral-700">StockTrader Pro</h1>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="container mx-auto px-4 py-6">
+    <!-- 返回按钮 -->
+    <div class="mb-6">
+      <a href="index.html" class="inline-flex items-center text-primary hover:text-primary/80 transition-colors">
+        <i class="fa fa-arrow-left mr-2"></i>
+        <span>Return Market</span>
+      </a>
+    </div>
+    
+
+      
+      <!-- 右侧：买入表单 -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-xl shadow-sm p-6 sticky top-24 card-hover">
+          <h3 class="text-xl font-semibold mb-6 flex items-center">
+            <i class="fa fa-plus-circle text-success mr-2"></i>Buy Stock
+          </h3>
+          
+          <div class="mb-6">
+            <label for="stockSelect" class="block text-sm text-neutral-500 mb-2">Select Stock</label>
+            <select id="stockSelect" class="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+              <option value="TSLA" selected="" id="TSLA">TSLA</option>
+              <option value="AAPL" id="AAPL">AAPL</option>
+              <option value="IBM" id="IBM">IBM</option>
+              <option value="GOOGL" id="GOOGL">GOOGL</option>
+              <option value="NKE" id="NKE">NKE</option>
+            </select>
+          </div>
+          
+          <div class="mb-6">
+            <label class="block text-sm text-neutral-500 mb-2">Current Price</label>
+            <div class="flex items-center border border-neutral-300 rounded-lg px-3 py-2">
+              <span class="text-lg font-semibold" id = "currentPriceDisplay"></span>
+              <span class="ml-2 text-success text-sm" id = "changePercent"><i class="fa fa-caret-up"></i></span>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <div class="flex justify-between items-center mb-2">
+              <label for="buyAmount" class="block text-sm text-neutral-500">Quantity to Buy</label>
+              <span class="text-xs text-neutral-500">Mininum 100 shares,100 Shares per Lot</span>
+            </div>
+            
+            <div class="flex">
+              <button id="decreaseBtn" class="w-10 h-10 border border-neutral-300 rounded-l-lg flex items-center justify-center hover:bg-neutral-100 transition-colors number-input-spin">
+                <i class="fa fa-minus"></i>
+              </button>
+              <input type="number" id="buyAmount" value="100" min="100" step="100" class="flex-1 border-t border-b border-neutral-300 text-center py-2 focus:outline-none">
+              <button id="increaseBtn" class="w-10 h-10 border border-neutral-300 rounded-r-lg flex items-center justify-center hover:bg-neutral-100 transition-colors number-input-spin">
+                <i class="fa fa-plus"></i>
+              </button>
+            </div>
+            
+            <!-- 快捷数量选择 -->
+            <div class="flex flex-wrap gap-2 mt-3">
+              <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded text-sm transition-colors quick-amount">100</button>
+              <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded text-sm transition-colors quick-amount">500</button>
+              <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded text-sm transition-colors quick-amount">1000</button>
+              <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded text-sm transition-colors quick-amount">2000</button>
+              <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded text-sm transition-colors quick-amount">5000</button>
+            </div>
+          </div>
+          
+          <div class="space-y-4 mb-6">
+            <div class="flex justify-between items-center pb-3 border-b border-neutral-100">
+              <span class="text-neutral-500">Available Funds</span>
+              <span class="font-medium" id = "availableFundsE1">0.00</span>
+            </div>
+            <div class="flex justify-between items-center pb-3 border-b border-neutral-100">
+              <span class="text-neutral-500">Amount to Buy</span>
+              <span class="font-medium" id="totalAmount"></span>
+            </div>
+            <div class="flex justify-between items-center pb-3 border-b border-neutral-100">
+              <span class="text-neutral-500">Estimated Fees</span>
+              <span class="font-medium" id = "feeE1"></span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="font-medium">Total Amount Required</span>
+              <span class="font-bold text-lg" id="grandTotal"></span>
+            </div>
+          </div>
+          
+          <div class="space-y-3">
+            <button id="confirmBuyBtn" class="w-full py-3 bg-success hover:bg-success/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center">
+              <i class="fa fa-check-circle mr-2"></i>Confirm Buy
+            </button>
+            <button id="cancelBtn" class="w-full py-3 bg-neutral-200 hover:bg-neutral-300 text-neutral-700 rounded-lg font-medium transition-colors">
+              Cancel
+            </button>
+          </div>
+          
+          <div class="mt-4 text-xs text-neutral-500 text-center">
+            <p>Note:After submitting the buy order,it will be matched and executed based on market conditions.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- 买入成功弹窗 -->
+  <div id="successModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 transform transition-all">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-success/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa fa-check text-2xl text-success"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Buy order has been submitted</h3>
+        <p class="text-neutral-500 mb-6">Your buy order has been successfully submitted and is awaiting execution.</p>
+        
+        <div class="bg-neutral-100 rounded-lg p-4 text-left mb-6 text-sm">
+          <div class="flex justify-between mb-2">
+            <span class="text-neutral-500">Stock Name</span>
+            <span></span>
+          </div>
+          <div class="flex justify-between mb-2">
+            <span class="text-neutral-500">Order Price</span>
+            <span></span>
+          </div>
+          <div class="flex justify-between mb-2">
+            <span class="text-neutral-500">Order Quantity</span>
+            <span></span>
+          </div>
+        </div>
+        
+        <div class="flex gap-3">
+          <a href="index.html" class="flex-1 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition-colors text-center">
+            Return Market
+          </a>
+         
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 资金不足弹窗 -->
+  <div id="insufficientFundsModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 transform transition-all">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-danger/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa fa-exclamation-triangle text-2xl text-danger"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Insufficient Funds</h3>
+        <p class="text-neutral-500 mb-6">Insufficient funds,please recharge or reduce the purchase quantity.</p>
+        
+        <button id="closeInsufficientBtn" class="w-full py-3 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition-colors">
+          I understand
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 页脚 -->
+  <footer class="bg-white border-t border-neutral-200 mt-8">
+    <div class="container mx-auto px-4 py-6 text-center text-neutral-500 text-sm">
+      <p>our team</p>
+      <p class="mt-1">Zinnia Zhang. Zero Zhu. Benjie Zhao. Ivan Zhao. Diana Xu.</p>
+    </div>
+  </footer>
+
+  <script>
+  
+      // 数量选择逻辑
+      const decreaseBtn = document.getElementById('decreaseBtn');
+      const increaseBtn = document.getElementById('increaseBtn');
+      const totalAmountE1 = document.getElementById('totalAmount');
+      const grandTotalE1 = document.getElementById('grandTotal');//zongjiage
+      const quickAmountBtns = document.querySelectorAll('.quick-amount');
+      const confirmBuyBtn = document.getElementById('confirmBuyBtn');
+      const cancelBtn = document.getElementById('cancelBtn');
+      const successModal = document.getElementById('successModal');
+      const insufficientFundsModal = document.getElementById('insufficientFundsModal');
+      const viewOrderBtn = document.getElementById('viewOrderBtn');
+      const closeInsufficientBtn = document.getElementById('closeInsufficientBtn');
+      const stockSelect = document.getElementById('stockSelect');    
+      const currentPriceDisplay=document.getElementById('currentPriceDisplay');// 当前价格
+      const buyAmount=document.getElementById('buyAmount');// 获取买入数
+      const changePercent = document.getElementById('changePercent'); // 涨跌幅显示
+      const availableFundsE1= document.getElementById('availableFundsE1'); // 可用资金显示
+      const feeE1 = document.getElementById('feeE1'); // 手续费显示 
+      let stockData={};
+      let stockPrices = {}; // 股票价格映射表
+      let availableFunds =0; // 可用资金
+      const FEE_RATE = 0.0001; // 假设手续费率为0.01%
+      // 股票价格映射表()shoupanjian
+      async function fetchstockPrices(stockCode)  {
+        try{
+         // 调用后端API获取收盘价（替换为实际API地址）
+          const response = await fetch(`http://localhost:8080/api/chart/${stockSelect.value}/current`);
+          if (!response.ok) throw new Error('Failed to fetch stock price');
+
+          const data = await response.json();
+          
+          console.log(data);
+
+    // 更新当前价格显示
+           currentPriceDisplay.textContent = `¥${data.data.price}`;
+           stockPrices[stockCode] = data.data.price; // 更新股票价格映射表
+   
+          // 处理涨跌幅（正数上涨，负数下跌）
+    const isUp = data.data.changePercent >= 0;
+    changePercent.className = `ml-2 text-sm ${isUp ? 'text-success' : 'text-danger'}`;
+    changePercent.innerHTML = `
+      <i class="fa ${isUp ? 'fa-caret-up' : 'fa-caret-down'}"></i>
+      ${isUp ? '+' : ''}${data.data.changePercent}%
+    `;
+    
+  } catch (error) {
+    console.error('Error fetching stock price:', error);
+    if (document.getElementById('chartLoader')) {
+      document.getElementById('chartLoader').classList.add('hidden');
+    }
+    alert('Failed to get stock price. Please try again.');
+  }
+}
+// 从后端获取可用资金
+async function fetchAvailableFunds() {
+  try {
+    const response = await fetch(`http://localhost:8080/users`);
+    if (!response.ok) throw new Error('Failed to fetch available funds');
+
+    const userdata = await response.json();
+    const data = userdata.data[0];
+
+    availableFunds = data.available_funds;
+    availableFundsE1.textContent = `¥${availableFunds}`;
+  } catch (error) {
+    console.error('Error fetching funds:', error);
+    alert('Failed to get available funds. Please try again.');
+  }
+}
+      
+      // 更新总金额
+      function updateTotalAmount() {
+        const stockCode = stockSelect.value;
+         // 确保获取最新价格
+        const amount = parseInt(buyAmount.value);
+        const price = stockPrices[stockCode];
+        const totalAmount = amount * price;
+        const fee = totalAmount * 0.0001; // 假设手续费为0.01%
+        const grandTotal = totalAmount + fee;
+        totalAmountE1.textContent = `¥${totalAmount}`;
+        feeE1.textContent = `¥${fee}`;
+        grandTotalE1.textContent = `¥${grandTotal}`;
+        console.log(`Total Amount: ${totalAmount}, Fee: ${fee}, Grand Total: ${grandTotal}`);
+        document.addEventListener('DOMContentLoaded', async () => {
+          await Promise.all([
+            fetchstockPrices(stockSelect.value), // 加载默认选中股票价格
+            fetchAvailableFunds() // 加载可用资金
+          ]);
+          updateTotalAmount(); // 初始化计算
+        });
+      }
+      // 提交购买请求到后端
+async function submitBuyOrder() {
+  const stockCode = stockSelect.value;
+  if (!stockData[stockCode]) return;
+
+  const user_id = '1';
+  const quantity = parseInt(buyAmount.value);
+  const price = stockData[stockCode].price;
+  const totalAmount = parseFloat(totalAmountEl.textContent.replace('¥', ''));
+  const buy_price = parseFloat(grandTotalEl.textContent.replace('¥', ''));
+  const currentTime = new Date().toISOString();
+
+  try {
+    // 禁用按钮防止重复提交
+    confirmBuyBtn.disabled = true;
+    confirmBuyBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>Processing...';
+
+    // 调用后端购买接口（替换为实际API地址）
+    const response = await fetch(`http://localhost:8080/portfolio-items/portfolio/buy`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: user_id,
+        stockCode: stockCode, // 股票名称
+        buy_time: currentTime, // 购买时间
+        buy_price: buy_price, // 总金额
+        quantity: amount // 购买数
+      })
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      // 购买成功
+      successModal.classList.remove('hidden');
+      successModal.classList.add('flex');
+      // 更新订单详情弹窗内容
+      document.querySelector('.bg-neutral-100.rounded-lg.p-4.text-left.mb-6.text-sm .flex.justify-between.mb-2:nth-child(1) span:last-child').textContent = `${stockCode}`;
+      document.querySelector('.bg-neutral-100.rounded-lg.p-4.text-left.mb-6.text-sm .flex.justify-between.mb-2:nth-child(2) span:last-child').textContent = `¥${price.toFixed(2)}`;
+      document.querySelector('.bg-neutral-100.rounded-lg.p-4.text-left.mb-6.text-sm .flex.justify-between.mb-2:nth-child(3) span:last-child').textContent = `${amount} shares`;
+      
+      // 重新获取可用资金
+      await fetchAvailableFunds();
+    } else if (result.error === 'insufficient_funds') {
+      // 资金不足
+      insufficientFundsModal.classList.remove('hidden');
+      insufficientFundsModal.classList.add('flex');
+    } else {
+      throw new Error(result.message || 'Purchase failed');
+    }
+  } catch (error) {
+    console.error('Purchase error:', error);
+    alert('Purchase failed. Please try again.');
+  } finally {
+    // 恢复按钮状态
+    confirmBuyBtn.disabled = false;
+    confirmBuyBtn.innerHTML = '<i class="fa fa-check-circle mr-2"></i>Confirm Buy';
+  }
+}
+// 事件监听修正
+stockSelect.addEventListener('change', (e) => fetchstockPrices(e.target.value)); // 股票切换时更新价格
+buyAmount.addEventListener('input', updateTotalAmount); // 数量变化时重新计算
+decreaseBtn.addEventListener('click', () => {
+  const current = parseInt(buyAmount.value);
+  if (current > 100) {
+    buyAmount.value = current - 100;
+    updateTotalAmount();
+  }
+});
+increaseBtn.addEventListener('click', () => {
+  buyAmount.value = parseInt(buyAmount.value) + 100;
+  updateTotalAmount();
+});
+quickAmountBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    buyAmount.value = btn.textContent;
+    updateTotalAmount();
+  });
+});
+      // 减少数量
+      decreaseBtn.addEventListener('click', function() {
+        let currentValue = parseInt(buyAmount.value);
+        if (currentValue > 100) {
+          buyAmount.value = currentValue - 100;
+          updateTotalAmount();
+        }
+      });
+      
+      // 增加数量
+      increaseBtn.addEventListener('click', function() {
+        let currentValue = parseInt(buyAmount.value);
+        buyAmount.value = currentValue + 100;
+        updateTotalAmount();
+      });
+      
+      // 输入框值变化时更新
+      buyAmount.addEventListener('change', function() {
+        // 确保值是100的倍数且不小于100
+        let value = parseInt(this.value);
+        if (isNaN(value) || value < 100) {
+          value = 100;
+        } else if (value % 100 !== 0) {
+          value = Math.round(value / 100) * 100;
+        }
+        this.value = value;
+        updateTotalAmount();
+      });
+      
+      // 快捷数量选择
+      quickAmountBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          buyAmount.value = this.textContent;
+          updateTotalAmount();
+        });
+      });
+      
+      // 股票选择变化时更新(get close price)
+      stockSelect.addEventListener('change', function() {
+       fetchstockPrices(this.value);
+      });
+      
+      // 确认买入(post name,number,totalprice,get)
+      confirmBuyBtn.addEventListener('click', submitBuyOrder);
+      
+      // 取消按钮
+      cancelBtn.addEventListener('click', function() {
+        window.history.back();
+      });
+      
+    
+      // 关闭资金不足弹窗
+      closeInsufficientBtn.addEventListener('click', function() {
+        insufficientFundsModal.classList.add('hidden');
+        insufficientFundsModal.classList.remove('flex');
+      });
+      
+      // 点击弹窗外部关闭
+      [successModal, insufficientFundsModal].forEach(modal => {
+        modal.addEventListener('click', function(e) {
+          if (e.target === modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+          }
+        });
+      });
+      // 页面初始化
+async function init() {
+  // 初始化时获取可用资金
+  await fetchAvailableFunds();
+  // 获取默认选中股票的价格
+  await fetchstockPrices(stockSelect.value);
+}
+
+// 页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', init);
+    
+  </script>
+
+
+</body></html>
