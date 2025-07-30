@@ -1,5 +1,6 @@
 const PortfolioItem = require('../models/PortfolioItem');
 const User = require('../models/User');
+const { Op } = require('sequelize');
 
 class PortfolioService {
   // 买入股票(添加到组合)
@@ -52,7 +53,29 @@ class PortfolioService {
   }
 
   // 更新组合项(一般不用于更新买入价格，可用于其他字段)
-  async updatePortfolioItem(id, data) {
+  async updatePortfolioItem(id, updateData) {
+    // 执行更新，不使用 returning 选项
+  const [affectedRows] = await PortfolioItem.update(
+    {
+      stock_name: updateData.stockName,
+      quantity: updateData.quantity,
+      buy_price: updateData.currentPrice
+    },
+    {
+      where: { id: id } // 只保留 where 条件
+    }
+  );
+
+  console.log('受影响的行数:', affectedRows);
+
+  if (affectedRows > 0) {
+    // 更新成功后，重新查询获取最新数据
+    const updatedItem = await PortfolioItem.findByPk(id);
+    return updatedItem;
+  } else {
+    throw new Error('Portfolio item not found or no changes made');
+  }
+    /*
     const [updated] = await PortfolioItem.update(data, {
       where: { id }
     });
@@ -60,7 +83,7 @@ class PortfolioService {
     if (updated) {
       return await this.getPortfolioItemById(id);
     }
-    return null;
+    return null;*/
   }
 
   async sellStock(stockName, sellQuantity, currentPrice) {
@@ -181,6 +204,39 @@ class PortfolioService {
       totalRevenue
     };
   }*/
+ 
+ async findAndDeleteByStockName(stockName) {
+  try {
+    // 1. 先查找所有匹配的记录
+    const itemsToDelete = await PortfolioItem.findAll({
+      where: {
+        stock_name: {
+          [Op.like]: stockName
+        }
+      }
+    });
+
+    if (itemsToDelete.length === 0) {
+      console.log(`未找到名为 "${stockName}" 的持仓记录。`);
+      return { success: false, message: '未找到匹配的记录，未执行删除。' };
+    }
+
+    // 2. 执行删除操作
+    // 你可以遍历后逐个删除，或者一次性删除
+    const deletedCount = await PortfolioItem.destroy({
+      where: {
+        id: itemsToDelete.map(item => item.id) // 根据 id 列表进行精确删除
+      }
+    });
+
+    console.log(`找到了 ${itemsToDelete.length} 条记录，并成功删除了${deletedCount} 条名为 "${stockName}" 的持仓记录。`);
+    return { success: true, message: `成功删除了 ${deletedCount} 条记录。` };
+
+  } catch (error) {
+    console.error('查找并删除持仓记录时发生错误:', error);
+    return { success: false, message: '删除操作失败，请稍后重试。' };
+  }
+  }
 }
 
 module.exports = new PortfolioService();

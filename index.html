@@ -69,7 +69,7 @@
     <div class="container mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center space-x-2">
         <i class="fa fa-line-chart text-primary text-2xl"></i>
-        <h1 class="text-xl font-bold text-neutral-700">PortfolioManage Pro</h1>
+        <h1 class="text-xl font-bold text-neutral-700">StockTrader Pro</h1>
       </div>
     </div>
   </header>
@@ -188,19 +188,19 @@
             <div class="grid grid-cols-2 gap-4 w-full mt-4" id="assetLegend">
               <div class="flex items-center">
                 <span class="w-3 h-3 rounded-full bg-primary mr-2"></span>
-                <span class="text-sm">Stocks (45%)</span>
+                <span class="text-sm" id="stocksLegend">Stocks (0%)</span>
               </div>
               <div class="flex items-center">
                 <span class="w-3 h-3 rounded-full bg-secondary mr-2"></span>
-                <span class="text-sm">Bonds (20%)</span>
+                <span class="text-sm" id="bondsLegend">Bonds (0%)</span>
               </div>
               <div class="flex items-center">
                 <span class="w-3 h-3 rounded-full bg-success mr-2"></span>
-                <span class="text-sm">Funds (15%)</span>
+                <span class="text-sm" id="fundsLegend">Funds (0%)</span>
               </div>
               <div class="flex items-center">
                 <span class="w-3 h-3 rounded-full bg-neutral-300 mr-2"></span>
-                <span class="text-sm">Cash (20%)</span>
+                <span class="text-sm" id="cashLegend">Cash (0%)</span>
               </div>
             </div>
           </div>
@@ -694,13 +694,12 @@
         document.getElementById('availableCash').textContent = availableFunds;
         document.getElementById('investmentTotal').textContent = invested_funds;
         
-
         // 初始化资产分布饼状图
         setTimeout(() => {
           updateAssetDistribution();
         }, 100);
         
-
+       
       } catch (error) {
         console.error('Account data loading error:', error);
         // Show error message
