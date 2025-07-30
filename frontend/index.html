@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>股票交易平台</title>
+  <title>Stock Trading Platform</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
  <script>
-  const API_BASE_URL = 'http://localhost:3000'; // 替换为实际API地址
+  const API_BASE_URL = 'http://localhost:3000'; // Replace with actual API address
  </script>
-  <!-- 配置Tailwind -->
+  <!-- Configure Tailwind -->
   <script>
     tailwind.config = {
       theme: {
@@ -64,7 +64,7 @@
   </style>
 </head>
 <body class="font-inter bg-neutral-100 text-neutral-700 min-h-screen">
-  <!-- 顶部导航栏 -->
+  <!-- Top Navigation Bar -->
   <header class="bg-white shadow-sm sticky top-0 z-50">
     <div class="container mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center space-x-2">
@@ -74,155 +74,110 @@
     </div>
   </header>
 
-  <!-- 主内容区 - 股票图表和交易区域（扩展为主要部分） -->
+  <!-- Main Content Area - Stock Chart and Trading Section -->
   <main class="container mx-auto px-4 py-6">
-    <!-- 主要股票信息和图表区域 -->
+    <!-- Main Stock Information and Chart Area -->
     <section class="bg-white rounded-xl shadow-sm p-5 card-hover mb-6">
       
-      <!-- 时间范围选择器 -->
+      <!-- Time Range Selector -->
       <div class="flex space-x-2 mb-4 overflow-x-auto scrollbar-hide pb-2">
-        <button class="px-3 py-1 bg-primary text-white rounded-full text-sm whitespace-nowrap">one day</button>
-        <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-full text-sm whitespace-nowrap transition-colors">three days ago</button>
-        <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-full text-sm whitespace-nowrap transition-colors">five days ago</button>
+        <button class="px-3 py-1 bg-primary text-white rounded-full text-sm whitespace-nowrap">1 Day</button>
+        <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-full text-sm whitespace-nowrap transition-colors">3 Days</button>
+        <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-full text-sm whitespace-nowrap transition-colors">5 Days</button>
       </div>
       
-      <!-- 股票图表 - 扩大尺寸 -->
+      <!-- Stock Chart -->
       <div class="h-96 relative">
         <canvas id="stockChart"></canvas>
-        <!-- 加载动画 -->
+        <!-- Loading Animation -->
         <div id="chartLoader" class="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg z-10 hidden">
           <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
       </div>
       
-      <!-- 股票价格详情 -->
+      <!-- Stock Price Details -->
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mt-6 text-center">
         <div class="p-3 bg-neutral-100 rounded-lg">
-          <p class="text-neutral-500 text-sm">开盘价</p>
+          <p class="text-neutral-500 text-sm">Open Price</p>
           <p class="font-semibold" data-role="open"></p>
         </div>
         <div class="p-3 bg-neutral-100 rounded-lg">
-          <p class="text-neutral-500 text-sm">收盘价</p>
+          <p class="text-neutral-500 text-sm">Close Price</p>
           <p class="font-semibold" data-role="close"></p>
         </div>
         <div class="p-3 bg-neutral-100 rounded-lg">
-          <p class="text-neutral-500 text-sm">最高价</p>
+          <p class="text-neutral-500 text-sm">High Price</p>
           <p class="font-semibold text-success" data-role="high"></p>
         </div>
         <div class="p-3 bg-neutral-100 rounded-lg">
-          <p class="text-neutral-500 text-sm">最低价</p>
+          <p class="text-neutral-500 text-sm">Low Price</p>
           <p class="font-semibold text-danger" data-role="low"></p>
         </div>
         <div class="p-3 bg-neutral-100 rounded-lg md:col-span-1 col-span-2">
-          <p class="text-neutral-500 text-sm">更新时间</p>
+          <p class="text-neutral-500 text-sm">Last Updated</p>
           <p class="font-semibold" data-role="time"></p>
         </div>
       </div>
       
-      <!-- 交易操作区 - 扩大尺寸 -->
+      <!-- Trading Operations Area -->
       <div class="mt-6 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
         <div class="flex-1">
-          <label for="stockType" class="block text-sm text-neutral-500 mb-1">股票类型</label>
+          <label for="stockType" class="block text-sm text-neutral-500 mb-1">Stock Symbol</label>
           <select id="stockType" class="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
-            <option value="TSLA" selected="">特斯拉 (TSLA)</option>
-            <option value="AAPL">苹果 (AAPL)</option>
+            <option value="TSLA" selected="">Tesla (TSLA)</option>
+            <option value="AAPL">Apple (AAPL)</option>
             <option value="IBM">IBM (IBM)</option>
-            <option value="GOOGL">谷歌 (GOOGL)</option>
-            <option value="NKE">耐克 (NKE)</option>
+            <option value="GOOGL">Google (GOOGL)</option>
+            <option value="NKE">Nike (NKE)</option>
           </select>
         </div>
         
         <div class="flex gap-3 w-full sm:w-auto">
           <button class="flex-1 sm:flex-none px-8 py-3 bg-success hover:bg-success/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center"
           onclick="window.location.href='buy-stock.html'">
-            <i class="fa fa-plus-circle mr-2"></i>买入
+            <i class="fa fa-plus-circle mr-2"></i>Buy
           </button>
           <button class="flex-1 sm:flex-none px-8 py-3 bg-danger hover:bg-danger/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center"
           onclick="window.location.href='sell-stock.html'">
-            <i class="fa fa-minus-circle mr-2"></i>卖出
+            <i class="fa fa-minus-circle mr-2"></i>Sell
           </button>
         </div>
       </div>
     </section>
-    <script>
-      // 页面加载完成后获取账户数据
-      document.addEventListener('DOMContentLoaded', async () => {
-        try {
-          // 调用用户数据接口
-          const response = await fetch('http://localhost:3000/users');
-          
-          if (!response.ok) {
-            throw new Error('数据获取失败');
-          }
-          
-          // 假设接口返回格式：{ totalAsset: 128560.45, availableCash: 54230.12, investmentTotal: 74330.33 }
-          const userData = await response.json();
-          const user = userData.data[0]; // 假设返回的是一个数组，取第一个用户数据
-
-          // 2. 访问对象的具体属性
-          const username = user.username;
-          const totalFunds = user.total_funds;
-          const availableFunds = user.available_funds;
-          const invested_funds = user.invested_funds;
-
-          console.log(`用户名: ${username}`);
-          console.log(`总资金: ${totalFunds}`);
-          console.log(`可用资金: ${availableFunds}`);
-
-          console.log('用户数据:', userData.data[0]);
-          
-          // 格式化金额显示（保留两位小数，添加千位分隔符）
-          /*const formatCurrency = (amount) => {
-            return '¥' + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-          };*/
-          
-          // 更新DOM元素
-          document.getElementById('totalAsset').textContent = totalFunds;
-          document.getElementById('availableCash').textContent = availableFunds;
-          document.getElementById('investmentTotal').textContent = invested_funds;
-          
-         
-        } catch (error) {
-          console.error('账户数据加载错误:', error);
-          // 显示错误提示
-          document.getElementById('accountLoading').classList.add('hidden');
-          document.getElementById('accountError').classList.remove('hidden');
-        }
-      });
-    </script>
-    <!-- 底部信息区域 - 分为三个部分 -->
+    
+    <!-- Bottom Information Area - Three Sections -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- 左侧：账户概览和资产饼图 -->
+      <!-- Left: Account Overview and Asset Pie Chart -->
       <section class="space-y-6">
-        <!-- 缩小的账户概览卡片 -->
+        <!-- Account Overview Card -->
         <div class="bg-white rounded-xl shadow-sm p-5 card-hover">
           <h2 class="text-lg font-semibold mb-4 flex items-center">
-            <i class="fa fa-wallet text-primary mr-2"></i>账户概览
+            <i class="fa fa-wallet text-primary mr-2"></i>Account Overview
           </h2>
           
           <div class="space-y-4">
             <div>
-              <p class="text-neutral-500 text-sm">总资产</p>
+              <p class="text-neutral-500 text-sm">Total Assets</p>
               <p id="totalAsset"class="text-xl font-bold"></p>
             </div>
             
             <div class="grid grid-cols-2 gap-4">
               <div class="bg-neutral-100 rounded-lg p-3">
-                <p class="text-neutral-500 text-sm">可用现金</p>
+                <p class="text-neutral-500 text-sm">Available Cash</p>
                 <p id="availableCash" class="font-semibold"></p>
               </div>
               <div class="bg-neutral-100 rounded-lg p-3">
-                <p class="text-neutral-500 text-sm">总投资</p>
+                <p class="text-neutral-500 text-sm">Total Investment</p>
                 <p id="investmentTotal" class="font-semibold"></p>
               </div>
             </div>
           </div>
         </div>
         
-        <!-- 资产饼图 -->
+        <!-- Asset Distribution Pie Chart -->
         <div class="bg-white rounded-xl shadow-sm p-5 card-hover">
           <h2 class="text-lg font-semibold mb-4 flex items-center">
-            <i class="fa fa-pie-chart text-primary mr-2"></i>资产分布
+            <i class="fa fa-pie-chart text-primary mr-2"></i>Asset Distribution
           </h2>
           
           <div class="flex flex-col items-center">
@@ -233,166 +188,166 @@
             <div class="grid grid-cols-2 gap-4 w-full mt-4">
               <div class="flex items-center">
                 <span class="w-3 h-3 rounded-full bg-primary mr-2"></span>
-                <span class="text-sm">股票 (45%)</span>
+                <span class="text-sm">Stocks (45%)</span>
               </div>
               <div class="flex items-center">
                 <span class="w-3 h-3 rounded-full bg-secondary mr-2"></span>
-                <span class="text-sm">债券 (20%)</span>
+                <span class="text-sm">Bonds (20%)</span>
               </div>
               <div class="flex items-center">
                 <span class="w-3 h-3 rounded-full bg-success mr-2"></span>
-                <span class="text-sm">基金 (15%)</span>
+                <span class="text-sm">Funds (15%)</span>
               </div>
               <div class="flex items-center">
                 <span class="w-3 h-3 rounded-full bg-neutral-300 mr-2"></span>
-                <span class="text-sm">现金 (20%)</span>
+                <span class="text-sm">Cash (20%)</span>
               </div>
             </div>
           </div>
         </div>
       </section>
       
-      <!-- 中间：购买股票记录及操作 -->
+      <!-- Middle: Trading Records and Operations -->
       <section class="bg-white rounded-xl shadow-sm p-5 card-hover">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-semibold flex items-center">
-            <i class="fa fa-history text-primary mr-2"></i>交易记录
+            <i class="fa fa-history text-primary mr-2"></i>Trading Records
           </h2>
           <button class="text-primary text-sm hover:underline flex items-center" onclick="toggleRecordForm()">
-            <i class="fa fa-plus-circle mr-1"></i>添加记录
+            <i class="fa fa-plus-circle mr-1"></i>Add Record
           </button>
         </div>
         
-        <!-- 添加记录表单 (默认隐藏) -->
+        <!-- Add Record Form (Hidden by default) -->
         <div id="recordForm" class="mb-4 p-4 bg-neutral-50 rounded-lg hidden">
-          <h3 class="font-medium mb-3">添加交易记录</h3>
+          <h3 class="font-medium mb-3">Add Trading Record</h3>
           <div class="grid grid-cols-2 gap-3 mb-3">
             <div>
-              <label class="text-xs text-neutral-500 block mb-1">股票名称</label>
-              <input type="text" class="w-full text-sm border border-neutral-300 rounded px-2 py-1">
+              <label class="text-xs text-neutral-500 block mb-1">Stock Name</label>
+              <input type="text" id="addStockName" class="w-full text-sm border border-neutral-300 rounded px-2 py-1">
             </div>
             <div>
-              <label class="text-xs text-neutral-500 block mb-1">类型</label>
-              <select class="w-full text-sm border border-neutral-300 rounded px-2 py-1">
-                <option>买入</option>
-                <option>卖出</option>
+              <label class="text-xs text-neutral-500 block mb-1">Type</label>
+              <select id="addTradeType" class="w-full text-sm border border-neutral-300 rounded px-2 py-1">
+                <option>Buy</option>
+                <option>Sell</option>
               </select>
             </div>
             <div>
-              <label class="text-xs text-neutral-500 block mb-1">价格</label>
-              <input type="number" step="0.01" class="w-full text-sm border border-neutral-300 rounded px-2 py-1">
+              <label class="text-xs text-neutral-500 block mb-1">Price</label>
+              <input type="number" step="0.01" id="addStockPrice" class="w-full text-sm border border-neutral-300 rounded px-2 py-1">
             </div>
             <div>
-              <label class="text-xs text-neutral-500 block mb-1">数量</label>
-              <input type="number" class="w-full text-sm border border-neutral-300 rounded px-2 py-1">
+              <label class="text-xs text-neutral-500 block mb-1">Quantity</label>
+              <input type="number" id="addStockQuantity" class="w-full text-sm border border-neutral-300 rounded px-2 py-1">
             </div>
           </div>
           <div class="flex justify-end gap-2">
-            <button class="px-3 py-1 text-sm border border-neutral-300 rounded hover:bg-neutral-100" onclick="toggleRecordForm()">取消</button>
-            <button class="px-3 py-1 text-sm bg-primary text-white rounded hover:bg-primary/90">保存</button>
+            <button class="px-3 py-1 text-sm border border-neutral-300 rounded hover:bg-neutral-100" onclick="toggleRecordForm()">Cancel</button>
+            <button class="px-3 py-1 text-sm bg-primary text-white rounded hover:bg-primary/90" onclick="saveNewRecord()">Save</button>
           </div>
         </div>
         
-        <!-- 交易记录列表 -->
-        <div class="space-y-4 max-h-80 overflow-y-auto scrollbar-hide pr-2">
-          <div class="flex justify-between items-center pb-2 border-b border-neutral-100 group">
+        <!-- Trading Records List -->
+        <div class="space-y-4 max-h-80 overflow-y-auto scrollbar-hide pr-2" id="tradeRecordsList">
+          <div class="flex justify-between items-center pb-2 border-b border-neutral-100 group" data-record-id="1">
             <div>
-              <p class="font-medium">买入 贵州茅台</p>
-              <p class="text-neutral-500 text-sm">2023-06-14 14:25</p>
+              <p class="font-medium record-title">Buy Kweichow Moutai</p>
+              <p class="text-neutral-500 text-sm record-time">2023-06-14 14:25</p>
             </div>
             <div class="flex items-center gap-2">
-              <p class="text-danger font-semibold">-¥15,200.00</p>
+              <p class="text-danger font-semibold record-amount">-$15,200.00</p>
               <div class="opacity-0 group-hover:opacity-100 transition-opacity">
-                <button class="text-neutral-400 hover:text-primary"><i class="fa fa-pencil"></i></button>
-                <button class="text-neutral-400 hover:text-danger ml-1"><i class="fa fa-trash"></i></button>
+                <button class="text-neutral-400 hover:text-primary" onclick="editRecord(1)"><i class="fa fa-pencil"></i></button>
+                <button class="text-neutral-400 hover:text-danger ml-1" onclick="deleteRecord(1)"><i class="fa fa-trash"></i></button>
               </div>
             </div>
           </div>
           
-          <div class="flex justify-between items-center pb-2 border-b border-neutral-100 group">
+          <div class="flex justify-between items-center pb-2 border-b border-neutral-100 group" data-record-id="2">
             <div>
-              <p class="font-medium">卖出 腾讯控股</p>
-              <p class="text-neutral-500 text-sm">2023-06-12 10:18</p>
+              <p class="font-medium record-title">Sell Tencent Holdings</p>
+              <p class="text-neutral-500 text-sm record-time">2023-06-12 10:18</p>
             </div>
             <div class="flex items-center gap-2">
-              <p class="text-success font-semibold">+¥8,750.30</p>
+              <p class="text-success font-semibold record-amount">+$8,750.30</p>
               <div class="opacity-0 group-hover:opacity-100 transition-opacity">
-                <button class="text-neutral-400 hover:text-primary"><i class="fa fa-pencil"></i></button>
-                <button class="text-neutral-400 hover:text-danger ml-1"><i class="fa fa-trash"></i></button>
+                <button class="text-neutral-400 hover:text-primary" onclick="editRecord(2)"><i class="fa fa-pencil"></i></button>
+                <button class="text-neutral-400 hover:text-danger ml-1" onclick="deleteRecord(2)"><i class="fa fa-trash"></i></button>
               </div>
             </div>
           </div>
           
-          <div class="flex justify-between items-center pb-2 border-b border-neutral-100 group">
+          <div class="flex justify-between items-center pb-2 border-b border-neutral-100 group" data-record-id="3">
             <div>
-              <p class="font-medium">买入 阿里巴巴</p>
-              <p class="text-neutral-500 text-sm">2023-06-08 09:40</p>
+              <p class="font-medium record-title">Buy Alibaba</p>
+              <p class="text-neutral-500 text-sm record-time">2023-06-08 09:40</p>
             </div>
             <div class="flex items-center gap-2">
-              <p class="text-danger font-semibold">-¥12,500.00</p>
+              <p class="text-danger font-semibold record-amount">-$12,500.00</p>
               <div class="opacity-0 group-hover:opacity-100 transition-opacity">
-                <button class="text-neutral-400 hover:text-primary"><i class="fa fa-pencil"></i></button>
-                <button class="text-neutral-400 hover:text-danger ml-1"><i class="fa fa-trash"></i></button>
+                <button class="text-neutral-400 hover:text-primary" onclick="editRecord(3)"><i class="fa fa-pencil"></i></button>
+                <button class="text-neutral-400 hover:text-danger ml-1" onclick="deleteRecord(3)"><i class="fa fa-trash"></i></button>
               </div>
             </div>
           </div>
           
-          <div class="flex justify-between items-center pb-2 border-b border-neutral-100 group">
+          <div class="flex justify-between items-center pb-2 border-b border-neutral-100 group" data-record-id="4">
             <div>
-              <p class="font-medium">买入 特斯拉</p>
-              <p class="text-neutral-500 text-sm">2023-06-01 11:30</p>
+              <p class="font-medium record-title">Buy Tesla</p>
+              <p class="text-neutral-500 text-sm record-time">2023-06-01 11:30</p>
             </div>
             <div class="flex items-center gap-2">
-              <p class="text-danger font-semibold">-¥24,300.00</p>
+              <p class="text-danger font-semibold record-amount">-$24,300.00</p>
               <div class="opacity-0 group-hover:opacity-100 transition-opacity">
-                <button class="text-neutral-400 hover:text-primary"><i class="fa fa-pencil"></i></button>
-                <button class="text-neutral-400 hover:text-danger ml-1"><i class="fa fa-trash"></i></button>
+                <button class="text-neutral-400 hover:text-primary" onclick="editRecord(4)"><i class="fa fa-pencil"></i></button>
+                <button class="text-neutral-400 hover:text-danger ml-1" onclick="deleteRecord(4)"><i class="fa fa-trash"></i></button>
               </div>
             </div>
           </div>
         </div>
       </section>
       
-      <!-- 右侧：购买的股票的增长幅度和钱数 -->
+      <!-- Right: Portfolio Performance -->
       <section class="bg-white rounded-xl shadow-sm p-5 card-hover">
         <h2 class="text-lg font-semibold mb-4 flex items-center">
-          <i class="fa fa-line-chart text-primary mr-2"></i>持仓股票表现
+          <i class="fa fa-line-chart text-primary mr-2"></i>Portfolio Performance
         </h2>
         
         <div class="space-y-4 max-h-80 overflow-y-auto scrollbar-hide pr-2">
-          <!-- 股票表现项 -->
+          <!-- Stock Performance Item -->
           <div class="p-3 hover:bg-neutral-50 rounded-lg transition-colors border-l-4 border-success">
             <div class="flex justify-between items-start">
               <div>
-                <h3 class="font-semibold">贵州茅台</h3>
+                <h3 class="font-semibold">Kweichow Moutai</h3>
                 <p class="text-neutral-500 text-sm">600519.SS</p>
               </div>
               <div class="text-right">
-                <p class="font-semibold">¥1728.00</p>
+                <p class="font-semibold">$1728.00</p>
                 <p class="text-success text-sm">+1.67%</p>
               </div>
             </div>
             
             <div class="mt-2 grid grid-cols-2 gap-2 text-sm">
               <div>
-                <p class="text-neutral-500">持仓数量</p>
-                <p>100 股</p>
+                <p class="text-neutral-500">Holdings</p>
+                <p>100 shares</p>
               </div>
               <div>
-                <p class="text-neutral-500">持仓价值</p>
-                <p>¥172,800.00</p>
+                <p class="text-neutral-500">Market Value</p>
+                <p>$172,800.00</p>
               </div>
               <div>
-                <p class="text-neutral-500">成本价</p>
-                <p>¥1680.50</p>
+                <p class="text-neutral-500">Cost Basis</p>
+                <p>$1680.50</p>
               </div>
               <div>
-                <p class="text-neutral-500">收益</p>
-                <p class="text-success">+¥4,750.00</p>
+                <p class="text-neutral-500">P&L</p>
+                <p class="text-success">+$4,750.00</p>
               </div>
             </div>
             
-            <!-- 迷你走势图 -->
+            <!-- Mini Chart -->
             <div class="mt-2 h-12 bg-neutral-50 rounded">
               <canvas class="mini-chart" data-values="[1680, 1695, 1710, 1705, 1720, 1715, 1728]"></canvas>
             </div>
@@ -401,7 +356,7 @@
           <div class="p-3 hover:bg-neutral-50 rounded-lg transition-colors border-l-4 border-success">
             <div class="flex justify-between items-start">
               <div>
-                <h3 class="font-semibold">特斯拉</h3>
+                <h3 class="font-semibold">Tesla</h3>
                 <p class="text-neutral-500 text-sm">TSLA</p>
               </div>
               <div class="text-right">
@@ -412,24 +367,24 @@
             
             <div class="mt-2 grid grid-cols-2 gap-2 text-sm">
               <div>
-                <p class="text-neutral-500">持仓数量</p>
-                <p>50 股</p>
+                <p class="text-neutral-500">Holdings</p>
+                <p>50 shares</p>
               </div>
               <div>
-                <p class="text-neutral-500">持仓价值</p>
-                <p>¥82,146.50</p>
+                <p class="text-neutral-500">Market Value</p>
+                <p>$82,146.50</p>
               </div>
               <div>
-                <p class="text-neutral-500">成本价</p>
+                <p class="text-neutral-500">Cost Basis</p>
                 <p>$243.00</p>
               </div>
               <div>
-                <p class="text-neutral-500">收益</p>
-                <p class="text-success">+¥1,837.50</p>
+                <p class="text-neutral-500">P&L</p>
+                <p class="text-success">+$1,837.50</p>
               </div>
             </div>
             
-            <!-- 迷你走势图 -->
+            <!-- Mini Chart -->
             <div class="mt-2 h-12 bg-neutral-50 rounded">
               <canvas class="mini-chart" data-values="[240, 242, 239, 241, 245, 247, 248.5]"></canvas>
             </div>
@@ -438,7 +393,7 @@
           <div class="p-3 hover:bg-neutral-50 rounded-lg transition-colors border-l-4 border-danger">
             <div class="flex justify-between items-start">
               <div>
-                <h3 class="font-semibold">阿里巴巴</h3>
+                <h3 class="font-semibold">Alibaba</h3>
                 <p class="text-neutral-500 text-sm">BABA</p>
               </div>
               <div class="text-right">
@@ -449,24 +404,24 @@
             
             <div class="mt-2 grid grid-cols-2 gap-2 text-sm">
               <div>
-                <p class="text-neutral-500">持仓数量</p>
-                <p>200 股</p>
+                <p class="text-neutral-500">Holdings</p>
+                <p>200 shares</p>
               </div>
               <div>
-                <p class="text-neutral-500">持仓价值</p>
-                <p>¥115,485.00</p>
+                <p class="text-neutral-500">Market Value</p>
+                <p>$115,485.00</p>
               </div>
               <div>
-                <p class="text-neutral-500">成本价</p>
+                <p class="text-neutral-500">Cost Basis</p>
                 <p>$89.50</p>
               </div>
               <div>
-                <p class="text-neutral-500">收益</p>
-                <p class="text-danger">-¥3,035.00</p>
+                <p class="text-neutral-500">P&L</p>
+                <p class="text-danger">-$3,035.00</p>
               </div>
             </div>
             
-            <!-- 迷你走势图 -->
+            <!-- Mini Chart -->
             <div class="mt-2 h-12 bg-neutral-50 rounded">
               <canvas class="mini-chart" data-values="[89.5, 89.2, 88.7, 88.9, 88.1, 87.6, 87.35]"></canvas>
             </div>
@@ -476,11 +431,95 @@
     </div>
   </main>
   
-  <!-- 交易表单模态框 -->
+  <!-- Edit Record Modal -->
+  <div id="editRecordModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 transform transition-all">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold">Edit Trading Record</h3>
+        <button class="text-neutral-400 hover:text-neutral-700" onclick="closeEditModal()">
+          <i class="fa fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <div class="space-y-4">
+        <div>
+          <label for="editStockName" class="block text-sm text-neutral-500 mb-1">Stock Name</label>
+          <input type="text" id="editStockName" 
+                 class="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+        </div>
+        
+        <div>
+          <label for="editTradeType" class="block text-sm text-neutral-500 mb-1">Trade Type</label>
+          <select id="editTradeType" 
+                  class="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+            <option value="Buy">Buy</option>
+            <option value="Sell">Sell</option>
+          </select>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="editStockPrice" class="block text-sm text-neutral-500 mb-1">Price</label>
+            <input type="number" step="0.01" id="editStockPrice" 
+                   class="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+          </div>
+          <div>
+            <label for="editStockQuantity" class="block text-sm text-neutral-500 mb-1">Quantity</label>
+            <input type="number" id="editStockQuantity" 
+                   class="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+          </div>
+        </div>
+        
+        <div>
+          <label for="editTradeTime" class="block text-sm text-neutral-500 mb-1">Trade Time</label>
+          <input type="datetime-local" id="editTradeTime" 
+                 class="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+        </div>
+        
+        <div class="flex gap-3 pt-4">
+          <button onclick="closeEditModal()" 
+                  class="flex-1 py-3 border border-neutral-300 text-neutral-700 rounded-lg font-medium hover:bg-neutral-50 transition-colors">
+            Cancel
+          </button>
+          <button onclick="saveEditRecord()" 
+                  class="flex-1 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition-colors">
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteConfirmModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-sm p-6 transform transition-all">
+      <div class="text-center">
+        <div class="mb-4">
+          <i class="fa fa-exclamation-triangle text-danger text-4xl mb-3"></i>
+          <h3 class="text-lg font-bold text-neutral-700">Confirm Delete</h3>
+        </div>
+        
+        <p class="text-neutral-500 mb-6">Are you sure you want to delete this trading record? This action cannot be undone.</p>
+        
+        <div class="flex gap-3">
+          <button onclick="closeDeleteModal()" 
+                  class="flex-1 py-2 border border-neutral-300 text-neutral-700 rounded-lg font-medium hover:bg-neutral-50 transition-colors">
+            Cancel
+          </button>
+          <button onclick="confirmDelete()" 
+                  class="flex-1 py-2 bg-danger hover:bg-danger/90 text-white rounded-lg font-medium transition-colors">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trade Modal -->
   <div id="tradeModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
     <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 transform transition-all">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold" id="modalTitle">买入股票</h3>
+        <h3 class="text-xl font-bold" id="modalTitle">Buy Stock</h3>
         <button class="text-neutral-400 hover:text-neutral-700" onclick="closeTradeModal()">
           <i class="fa fa-times text-xl"></i>
         </button>
@@ -488,385 +527,568 @@
       
       <div class="space-y-4">
         <div>
-          <label class="block text-sm text-neutral-500 mb-1">股票</label>
-          <p class="font-medium" id="modalStockName">特斯拉 (TSLA)</p>
+          <label class="block text-sm text-neutral-500 mb-1">Stock</label>
+          <p class="font-medium" id="modalStockName">Tesla (TSLA)</p>
           <p class="text-neutral-500 text-sm" id="modalStockPrice">$248.52</p>
         </div>
         
         <div>
-          <label for="tradeQuantity" class="block text-sm text-neutral-500 mb-1">数量</label>
+          <label for="tradeQuantity" class="block text-sm text-neutral-500 mb-1">Quantity</label>
           <input type="number" id="tradeQuantity" min="1" value="1" 
                  class="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
         </div>
         
         <div class="bg-neutral-50 p-3 rounded-lg">
           <div class="flex justify-between mb-1">
-            <span class="text-neutral-500">预计总额</span>
+            <span class="text-neutral-500">Estimated Total</span>
             <span id="totalAmount" class="font-medium">$248.52</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-neutral-500">可用现金</span>
-            <span class="font-medium">¥54,230.12</span>
+            <span class="text-neutral-500">Available Cash</span>
+            <span class="font-medium">$54,230.12</span>
           </div>
         </div>
         
         <button id="confirmTradeBtn" class="w-full py-3 bg-success hover:bg-success/90 text-white rounded-lg font-medium transition-colors">
-          确认买入
+          Confirm Purchase
         </button>
       </div>
     </div>
   </div>
           
-  
-         
-  <!-- 页脚 -->
+  <!-- Footer -->
   <footer class="bg-white border-t border-neutral-200 mt-8">
     <div class="container mx-auto px-4 py-6 text-center text-neutral-500 text-sm">
-      <p>our team</p>
+      <p>Our Team</p>
       <p class="mt-1">Zinnia Zhang. Zero Zhu. Benjie Zhao. Ivan Zhao. Diana Xu.</p>
     </div>
   </footer>
 
   <script>
     let stockChart = null;
-    // 从后端获取股票历史数据并更新图表
+    let currentEditingId = null;
+    let currentDeletingId = null;
+
+    // Load account data when page loads
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        // Call user data API
+        const response = await fetch('http://localhost:3000/users');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch data');
+        }
+        
+        // Assume API returns format: { totalAsset: 128560.45, availableCash: 54230.12, investmentTotal: 74330.33 }
+        const userData = await response.json();
+        const user = userData.data[0]; // Assume returns array, take first user data
+
+        // Access object properties
+        const username = user.username;
+        const totalFunds = user.total_funds;
+        const availableFunds = user.available_funds;
+        const invested_funds = user.invested_funds;
+
+        console.log(`Username: ${username}`);
+        console.log(`Total Funds: ${totalFunds}`);
+        console.log(`Available Funds: ${availableFunds}`);
+
+        console.log('User data:', userData.data[0]);
+        
+        // Update DOM elements
+        document.getElementById('totalAsset').textContent = totalFunds;
+        document.getElementById('availableCash').textContent = availableFunds;
+        document.getElementById('investmentTotal').textContent = invested_funds;
+        
+       
+      } catch (error) {
+        console.error('Account data loading error:', error);
+        // Show error message
+        document.getElementById('accountLoading').classList.add('hidden');
+        document.getElementById('accountError').classList.remove('hidden');
+      }
+    });
+
+    // Trading record related functions
+    function toggleRecordForm() {
+      const form = document.getElementById('recordForm');
+      form.classList.toggle('hidden');
+      
+      // Clear form
+      if (!form.classList.contains('hidden')) {
+        document.getElementById('addStockName').value = '';
+        document.getElementById('addTradeType').value = 'Buy';
+        document.getElementById('addStockPrice').value = '';
+        document.getElementById('addStockQuantity').value = '';
+      }
+    }
+
+    function saveNewRecord() {
+      const stockName = document.getElementById('addStockName').value;
+      const tradeType = document.getElementById('addTradeType').value;
+      const price = parseFloat(document.getElementById('addStockPrice').value);
+      const quantity = parseInt(document.getElementById('addStockQuantity').value);
+
+      if (!stockName || !price || !quantity) {
+        alert('Please fill in complete trading information');
+        return;
+      }
+
+      // Create new record
+      const totalAmount = price * quantity;
+      const isProfit = tradeType === 'Sell';
+      const amountText = `${isProfit ? '+' : '-'}${totalAmount.toFixed(2)}`;
+      const amountClass = isProfit ? 'text-success' : 'text-danger';
+      
+      const currentTime = new Date();
+      const timeString = `${currentTime.getFullYear()}-${(currentTime.getMonth() + 1).toString().padStart(2, '0')}-${currentTime.getDate().toString().padStart(2, '0')} ${currentTime.getHours().toString().padStart(2, '0')}:${currentTime.getMinutes().toString().padStart(2, '0')}`;
+      
+      const newId = Date.now(); // Use timestamp as ID
+      
+      const recordHtml = `
+        <div class="flex justify-between items-center pb-2 border-b border-neutral-100 group" data-record-id="${newId}">
+          <div>
+            <p class="font-medium record-title">${tradeType} ${stockName}</p>
+            <p class="text-neutral-500 text-sm record-time">${timeString}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <p class="${amountClass} font-semibold record-amount">${amountText}</p>
+            <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+              <button class="text-neutral-400 hover:text-primary" onclick="editRecord(${newId})"><i class="fa fa-pencil"></i></button>
+              <button class="text-neutral-400 hover:text-danger ml-1" onclick="deleteRecord(${newId})"><i class="fa fa-trash"></i></button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Add to top of list
+      const recordsList = document.getElementById('tradeRecordsList');
+      recordsList.insertAdjacentHTML('afterbegin', recordHtml);
+      
+      // Hide form
+      toggleRecordForm();
+      
+      // Backend API call logic can be added here
+      console.log('New trading record:', {
+        id: newId,
+        stockName,
+        tradeType,
+        price,
+        quantity,
+        totalAmount,
+        time: timeString
+      });
+    }
+
+    function editRecord(recordId) {
+      currentEditingId = recordId;
+      
+      // Get record data
+      const recordElement = document.querySelector(`[data-record-id="${recordId}"]`);
+      const title = recordElement.querySelector('.record-title').textContent;
+      const time = recordElement.querySelector('.record-time').textContent;
+      const amount = recordElement.querySelector('.record-amount').textContent;
+      
+      // Parse data
+      const parts = title.split(' ');
+      const tradeType = parts[0];
+      const stockName = parts.slice(1).join(' ');
+      
+      // Fill edit form
+      document.getElementById('editStockName').value = stockName;
+      document.getElementById('editTradeType').value = tradeType;
+      
+      // Parse time
+      const timeForInput = time.replace(' ', 'T');
+      document.getElementById('editTradeTime').value = timeForInput;
+      
+      // Simplified handling, should get original price and quantity from data
+      document.getElementById('editStockPrice').value = '100.00';
+      document.getElementById('editStockQuantity').value = '10';
+      
+      // Show edit modal
+      document.getElementById('editRecordModal').classList.remove('hidden');
+      document.getElementById('editRecordModal').classList.add('flex');
+    }
+
+    function closeEditModal() {
+      document.getElementById('editRecordModal').classList.add('hidden');
+      document.getElementById('editRecordModal').classList.remove('flex');
+      currentEditingId = null;
+    }
+
+    function saveEditRecord() {
+      if (!currentEditingId) return;
+      
+      const stockName = document.getElementById('editStockName').value;
+      const tradeType = document.getElementById('editTradeType').value;
+      const price = parseFloat(document.getElementById('editStockPrice').value);
+      const quantity = parseInt(document.getElementById('editStockQuantity').value);
+      const tradeTime = document.getElementById('editTradeTime').value;
+
+      if (!stockName || !price || !quantity || !tradeTime) {
+        alert('Please fill in complete trading information');
+        return;
+      }
+
+      // Update record display
+      const recordElement = document.querySelector(`[data-record-id="${currentEditingId}"]`);
+      const totalAmount = price * quantity;
+      const isProfit = tradeType === 'Sell';
+      const amountText = `${isProfit ? '+' : '-'}${totalAmount.toFixed(2)}`;
+      const amountClass = isProfit ? 'text-success' : 'text-danger';
+      
+      // Format time display
+      const timeObj = new Date(tradeTime);
+      const timeString = `${timeObj.getFullYear()}-${(timeObj.getMonth() + 1).toString().padStart(2, '0')}-${timeObj.getDate().toString().padStart(2, '0')} ${timeObj.getHours().toString().padStart(2, '0')}:${timeObj.getMinutes().toString().padStart(2, '0')}`;
+      
+      recordElement.querySelector('.record-title').textContent = `${tradeType} ${stockName}`;
+      recordElement.querySelector('.record-time').textContent = timeString;
+      
+      const amountElement = recordElement.querySelector('.record-amount');
+      amountElement.textContent = amountText;
+      amountElement.className = `${amountClass} font-semibold record-amount`;
+      
+      closeEditModal();
+      
+      // Backend API call logic can be added here
+      console.log('Update trading record:', {
+        id: currentEditingId,
+        stockName,
+        tradeType,
+        price,
+        quantity,
+        totalAmount,
+        time: timeString
+      });
+    }
+
+    function deleteRecord(recordId) {
+      currentDeletingId = recordId;
+      
+      // Show delete confirmation modal
+      document.getElementById('deleteConfirmModal').classList.remove('hidden');
+      document.getElementById('deleteConfirmModal').classList.add('flex');
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('deleteConfirmModal').classList.add('hidden');
+      document.getElementById('deleteConfirmModal').classList.remove('flex');
+      currentDeletingId = null;
+    }
+
+    function confirmDelete() {
+      if (!currentDeletingId) return;
+      
+      // Delete record element
+      const recordElement = document.querySelector(`[data-record-id="${currentDeletingId}"]`);
+      if (recordElement) {
+        recordElement.remove();
+      }
+      
+      closeDeleteModal();
+      
+      // Backend API call logic can be added here
+      console.log('Delete trading record:', currentDeletingId);
+    }
+
+    // Fetch stock historical data from backend and update chart
     async function fetchStockHistoryData() {
-      // 显示加载动画
+      // Show loading animation
       const chartLoader = document.getElementById('chartLoader');
       if (chartLoader) chartLoader.classList.remove('hidden');
       
       try {
-        // 获取选中的股票和天数
+        // Get selected stock and days
         const stockTypeEl = document.getElementById('stockType');
-        if (!stockTypeEl) throw new Error('未找到股票选择下拉框');
+        if (!stockTypeEl) throw new Error('Stock selection dropdown not found');
         const selectedStock = stockTypeEl.value;
         
         const activeTimeBtn = document.querySelector('.flex.space-x-2.mb-4.overflow-x-auto.scrollbar-hide.pb-2');
-        if (!activeTimeBtn) throw new Error('未找到活跃的时间按钮');
+        if (!activeTimeBtn) throw new Error('Active time button not found');
         let days = 1;
-        /*if (activeTimeBtn.textContent.includes('three days ago')) {
-          days = 3;
-        } else if (activeTimeBtn.textContent.includes('five days ago')) {
-          days = 5;
-        }*/
         
-        // 构建请求URL
+        // Build request URL
         const apiUrl = `http://localhost:3000/api/quick-chart/${selectedStock}/${days}`;
-        console.log('请求历史数据:', apiUrl);
+        console.log('Request historical data:', apiUrl);
         
-        // 发起请求
+        // Make request
         const response = await fetch(apiUrl);
         if (!response.ok) {
-          throw new Error(`请求失败，状态码: ${response.status}`);
+          throw new Error(`Request failed, status code: ${response.status}`);
         }
         
-        // 解析后端数据
-    const result = await response.json();
-    console.log('后端返回数据:', result);
-    
-    // 验证数据结构
-    if (!result.success) {
-      throw new Error(`后端返回错误: ${result.message || '未知错误'}`);
-    }
-    if (!result.data || !result.data.pricePoints) {
-      throw new Error('数据格式错误，缺少pricePoints');
-    }
-    
-    // 处理数据格式以适应图表
-    const chartData = processChartData(result.data.pricePoints);
-    
-    // 更新图表
-    updateStockChart(chartData, days);
+        // Parse backend data
+        const result = await response.json();
+        console.log('Backend returned data:', result);
         
+        // Validate data structure
+        if (!result.success) {
+          throw new Error(`Backend returned error: ${result.message || 'Unknown error'}`);
+        }
+        if (!result.data || !result.data.pricePoints) {
+          throw new Error('Data format error, missing pricePoints');
+        }
+        
+        // Process data format for chart
+        const chartData = processChartData(result.data.pricePoints);
+        
+        // Update chart
+        updateStockChart(chartData, days);
+            
       } catch (error) {
-        console.error('获取历史数据失败:', error);
-        alert(`无法获取历史数据: ${error.message}`);
+        console.error('Failed to fetch historical data:', error);
+        alert(`Unable to get historical data: ${error.message}`);
       } finally {
-        // 隐藏加载动画
+        // Hide loading animation
         if (chartLoader) chartLoader.classList.add('hidden');
       }
     }
     
-    // 处理原始数据为图表所需格式
-function processChartData(pricePoints) {
-  // 排序数据点（按时间顺序）
-  const sortedPoints = [...pricePoints].sort((a, b) => new Date(a.time) - new Date(b.time));
-  
-  // 处理时间标签，显示日期和时间
-  const labels = sortedPoints.map(point => {
-    const date = new Date(point.time);
-    // 格式化：日期(MM-DD) 时间(HH:MM)
-    return `${date.getMonth() + 1}-${date.getDate()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-  });
-  
-  // 提取价格数据
-  const prices = sortedPoints.map(point => point.price);
-  
-  return {
-    labels: labels,
-    datasets: [{
-      label: '股票价格',
-      data: prices,
-      // 这里可以添加数据集的基本样式，后续会在updateStockChart中完善
-    }]
-  };
-}
-
-// 更新股票图表
-function updateStockChart(chartData, days) {
-  try {
-    const ctx = document.getElementById('stockChart');
-    if (!ctx) throw new Error('未找到canvas元素');
-    
-    // 销毁旧图表
-    if (stockChart) {
-      stockChart.destroy();
+    // Process raw data to chart format
+    function processChartData(pricePoints) {
+      // Sort data points (by time)
+      const sortedPoints = [...pricePoints].sort((a, b) => new Date(a.time) - new Date(b.time));
+      
+      // Process time labels, show date and time
+      const labels = sortedPoints.map(point => {
+        const date = new Date(point.time);
+        // Format: date(MM-DD) time(HH:MM)
+        return `${date.getMonth() + 1}-${date.getDate()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+      });
+      
+      // Extract price data
+      const prices = sortedPoints.map(point => point.price);
+      
+      return {
+        labels: labels,
+        datasets: [{
+          label: 'Stock Price',
+          data: prices,
+          // Basic dataset styles can be added here, will be completed in updateStockChart
+        }]
+      };
     }
-    
-    // 创建新图表
-    stockChart = new Chart(ctx, {
-      type: 'line',
-      data: chartData,
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-          mode: 'index',
-          intersect: false,
-        },
-        plugins: {
-          legend: {
-            display: true,
-            position: 'top',
-            labels: {
-              boxWidth: 12,
-              usePointStyle: true
-            }
-          },
-          tooltip: {
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            titleColor: '#1D2129',
-            bodyColor: '#4E5969',
-            borderColor: 'rgba(22, 93, 255, 0.1)',
-            borderWidth: 1,
-            padding: 10,
-            boxPadding: 5,
-            usePointStyle: true,
-            callbacks: {
-              label: function(context) {
-                return `价格: ¥${context.raw.toFixed(2)}`;
-              }
-            }
-          }
-        },
-        scales: {
-          x: {
-            grid: {
-              display: false
-            },
-            ticks: {
-              color: '#86909C',
-              font: {
-                size: 10
-              },
-              maxRotation: 45,
-              minRotation: 45,
-              // 控制x轴标签显示密度，避免过于拥挤
-              maxTicksLimit: days > 1 ? 10 : 15
-            }
-          },
-          y: {
-            position: 'right',
-            grid: {
-              color: 'rgba(0, 0, 0, 0.05)'
-            },
-            ticks: {
-              color: '#86909C',
-              font: {
-                size: 10
-              },
-              callback: function(value) {
-                return `¥${value.toFixed(2)}`;
-              }
-            }
-          }
-        },
-        animation: {
-          duration: 1000,
-          easing: 'easeOutQuart'
-        },
-        elements: {
-          line: {
-            borderColor: '#165DFF',
-            borderWidth: 2,
-            tension: 0.4
-          },
-          point: {
-            radius: 3,
-            hoverRadius: 5,
-            backgroundColor: '#165DFF'
-          }
+
+    // Update stock chart
+    function updateStockChart(chartData, days) {
+      try {
+        const ctx = document.getElementById('stockChart');
+        if (!ctx) throw new Error('Canvas element not found');
+        
+        // Destroy old chart
+        if (stockChart) {
+          stockChart.destroy();
         }
+        
+        // Create new chart
+        stockChart = new Chart(ctx, {
+          type: 'line',
+          data: chartData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+              mode: 'index',
+              intersect: false,
+            },
+            plugins: {
+              legend: {
+                display: true,
+                position: 'top',
+                labels: {
+                  boxWidth: 12,
+                  usePointStyle: true
+                }
+              },
+              tooltip: {
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                titleColor: '#1D2129',
+                bodyColor: '#4E5969',
+                borderColor: 'rgba(22, 93, 255, 0.1)',
+                borderWidth: 1,
+                padding: 10,
+                boxPadding: 5,
+                usePointStyle: true,
+                callbacks: {
+                  label: function(context) {
+                    return `Price: ${context.raw.toFixed(2)}`;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: {
+                  display: false
+                },
+                ticks: {
+                  color: '#86909C',
+                  font: {
+                    size: 10
+                  },
+                  maxRotation: 45,
+                  minRotation: 45,
+                  // Control x-axis label density to avoid overcrowding
+                  maxTicksLimit: days > 1 ? 10 : 15
+                }
+              },
+              y: {
+                position: 'right',
+                grid: {
+                  color: 'rgba(0, 0, 0, 0.05)'
+                },
+                ticks: {
+                  color: '#86909C',
+                  font: {
+                    size: 10
+                  },
+                  callback: function(value) {
+                    return `${value.toFixed(2)}`;
+                  }
+                }
+              }
+            },
+            animation: {
+              duration: 1000,
+              easing: 'easeOutQuart'
+            },
+            elements: {
+              line: {
+                borderColor: '#165DFF',
+                borderWidth: 2,
+                tension: 0.4
+              },
+              point: {
+                radius: 3,
+                hoverRadius: 5,
+                backgroundColor: '#165DFF'
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Chart update failed:', error);
+        alert(`Chart display failed: ${error.message}`);
       }
-    });
-  } catch (error) {
-    console.error('更新图表失败:', error);
-    alert(`图表显示失败: ${error.message}`);
-  }
-}
+    }
 
-// 获取股票最新数据并更新信息卡片
-async function fetchStockLatestData(stockCode) {
-  try {
-    const stockTypeEl = document.getElementById('stockType');
-    if (!stockTypeEl) throw new Error('未找到股票选择下拉框');
-    const selectedStock = stockTypeEl.value;
-    
-    // 这里假设获取最新数据的API
-    const response = await fetch(`${API_BASE_URL}/api/chart/${selectedStock}/current`);
-    if (!response.ok) {
-      throw new Error(`获取最新数据失败，状态码: ${response.status}`);
+    // Fetch latest stock data and update info cards
+    async function fetchStockLatestData(stockCode) {
+      try {
+        const stockTypeEl = document.getElementById('stockType');
+        if (!stockTypeEl) throw new Error('Stock selection dropdown not found');
+        const selectedStock = stockTypeEl.value;
+        
+        // Assume API for getting latest data
+        const response = await fetch(`${API_BASE_URL}/api/chart/${selectedStock}/current`);
+        if (!response.ok) {
+          throw new Error(`Failed to get latest data, status code: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        if (!result.success || !result.data) {
+          throw new Error('Failed to get latest data');
+        }
+        
+        const data = result.data;
+        
+        // Update stock info cards
+        const openEl = document.querySelector('[data-role="open"]');
+        const closeEl = document.querySelectorAll('[data-role="close"]')[0];
+        const highEl = document.querySelectorAll('[data-role="high"]')[0];
+        const lowEl = document.querySelectorAll('[data-role="low"]')[0];
+        const timeEl = document.querySelectorAll('[data-role="time"]')[0];
+        
+        if (openEl) openEl.textContent = `${data.open.toFixed(2)}`;
+        if (closeEl) closeEl.textContent = `${data.close.toFixed(2)}`;
+        if (highEl) highEl.textContent = `${data.high.toFixed(2)}`;
+        if (lowEl) lowEl.textContent = `${data.low.toFixed(2)}`;
+        console.log('Latest data:', data);
+        
+        // Update time
+        if (timeEl && data.timestamp) {
+          const date = new Date(data.timestamp);
+          timeEl.textContent = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+        }
+        
+      } catch (error) {
+        console.error('Failed to get latest data:', error);
+      }
     }
-    
-    const result = await response.json();
-    if (!result.success || !result.data) {
-      throw new Error('获取最新数据失败');
-    }
-    
-    const data = result.data;
-    
-    // 更新股票信息卡片
-    
-    const openEl = document.querySelector('[data-role="open"]');
-    const closeEl = document.querySelectorAll('[data-role="close"]')[0];
-    const highEl = document.querySelectorAll('[data-role="high"]')[0];
-    const lowEl = document.querySelectorAll('[data-role="low"]')[0];
-    const timeEl = document.querySelectorAll('[data-role="time"]')[0];
-    
-    
-    if (openEl) openEl.textContent = `¥${data.open.toFixed(2)}`;
-    if (closeEl) closeEl.textContent = `¥${data.close.toFixed(2)}`;
-    if (highEl) highEl.textContent = `¥${data.high.toFixed(2)}`;
-    if (lowEl) lowEl.textContent = `¥${data.low.toFixed(2)}`;
-    console.log('最新数据:', data);
-    // 更新时间
-    if (timeEl && data.timestamp) {
-      const date = new Date(data.timestamp);
-      timeEl.textContent = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-    }
-    
-  } catch (error) {
-    console.error('获取最新数据失败:', error);
-  }
-}
 
-// 初始化页面
-async function init() {
-  // 绑定股票选择事件
-  document.getElementById('stockType').addEventListener('change', async function() {
-    await fetchStockLatestData(this.value);
-    await fetchStockHistoryData();
-  });
-  
-  // 绑定时间范围选择事件
-  const timeButtons = document.querySelectorAll('.flex.space-x-2 button');
-  timeButtons.forEach(button => {
-    button.addEventListener('click', async function() {
-      // 更新按钮样式
-      timeButtons.forEach(btn => {
-        btn.classList.remove('bg-primary', 'text-white');
-        btn.classList.add('bg-neutral-100', 'hover:bg-neutral-200');
+    // Initialize page
+    async function init() {
+      // Bind stock selection event
+      document.getElementById('stockType').addEventListener('change', async function() {
+        await fetchStockLatestData(this.value);
+        await fetchStockHistoryData();
       });
-      this.classList.remove('bg-neutral-100', 'hover:bg-neutral-200');
-      this.classList.add('bg-primary', 'text-white');
       
+      // Bind time range selection event
+      const timeButtons = document.querySelectorAll('.flex.space-x-2 button');
+      timeButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+          // Update button styles
+          timeButtons.forEach(btn => {
+            btn.classList.remove('bg-primary', 'text-white');
+            btn.classList.add('bg-neutral-100', 'hover:bg-neutral-200');
+          });
+          this.classList.remove('bg-neutral-100', 'hover:bg-neutral-200');
+          this.classList.add('bg-primary', 'text-white');
+          
+          await fetchStockHistoryData();
+        });
+      });
+      
+      // Initial load default stock data
+      const defaultStock = document.getElementById('stockType').value;
+      await fetchStockLatestData(defaultStock);
       await fetchStockHistoryData();
-    });
-  });
-  
-  // 初始加载默认股票数据
-  const defaultStock = document.getElementById('stockType').value;
-  await fetchStockLatestData(defaultStock);
-  await fetchStockHistoryData();
-}
-
-// 页面加载完成后初始化
-document.addEventListener('DOMContentLoaded', init);
-    
-
- // 持仓分布图表配置
- /*const holdingsConfig = {
-  type: 'doughnut',
-  data: holdingsData,
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '70%',
-    plugins: {
-      legend: {
-        display: false
-      },
-      tooltip: {
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        titleColor: '#1D2129',
-        bodyColor: '#4E5969',
-        borderColor: 'rgba(22, 93, 255, 0.1)',
-        borderWidth: 1,
-        padding: 10,
-        boxPadding: 5
-      }
-    },
-    animation: {
-      animateRotate: true,
-      animateScale: true
     }
-  }
-};
 
-const holdingsChart = new Chart(
-  document.getElementById('holdingsChart'),
-  holdingsConfig
-);
+    // Initialize page after DOM loads
+    document.addEventListener('DOMContentLoaded', init);
 
-  */
-      
-      // 买入卖出按钮事件
-      const buyBtn = document.querySelector('button.bg-success');
-      const sellBtn = document.querySelector('button.bg-danger');
-      const tradeModal = document.getElementById('tradeModal');
-      const modalTitle = document.getElementById('modalTitle');
-      const closeModal = document.getElementById('closeModal');
-      const stockSelect = document.getElementById('stockType');
-      const modalStockName = document.getElementById('modalStockName');
-      
+    // Buy/sell button events
+    const buyBtn = document.querySelector('button.bg-success');
+    const sellBtn = document.querySelector('button.bg-danger');
+    const tradeModal = document.getElementById('tradeModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const stockSelect = document.getElementById('stockType');
+    const modalStockName = document.getElementById('modalStockName');
+    
+    if (buyBtn) {
       buyBtn.addEventListener('click', function() {
-        modalTitle.textContent = '买入股票';
-        modalTitle.previousElementSibling.className = 'fa fa-plus-circle text-success';
+        modalTitle.textContent = 'Buy Stock';
         modalStockName.textContent = stockSelect.options[stockSelect.selectedIndex].text;
         tradeModal.classList.remove('hidden');
         tradeModal.classList.add('flex');
       });
-      
+    }
+    
+    if (sellBtn) {
       sellBtn.addEventListener('click', function() {
-        modalTitle.textContent = '卖出股票';
-        modalTitle.previousElementSibling.className = 'fa fa-minus-circle text-danger';
+        modalTitle.textContent = 'Sell Stock';
         modalStockName.textContent = stockSelect.options[stockSelect.selectedIndex].text;
         tradeModal.classList.remove('hidden');
         tradeModal.classList.add('flex');
       });
-      
-      closeModal.addEventListener('click', function() {
-        tradeModal.classList.add('hidden');
-        tradeModal.classList.remove('flex');
-      });
-      
-      // 点击模态框外部关闭
+    }
+
+    function closeTradeModal() {
+      tradeModal.classList.add('hidden');
+      tradeModal.classList.remove('flex');
+    }
+    
+    // Close modal by clicking outside
+    if (tradeModal) {
       tradeModal.addEventListener('click', function(e) {
         if (e.target === tradeModal) {
-          tradeModal.classList.add('hidden');
-          tradeModal.classList.remove('flex');
+          closeTradeModal();
         }
       });
+    }
 
   </script>
 </body>
