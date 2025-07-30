@@ -111,6 +111,20 @@ curl "http://localhost:3000/api/stocks/search?q=Apple"
     "sellPrice": 323
   }
 
+# Stock item update interface
+   url:(put) http://localhost:8080/portfolio-items/portfolio/1  1 is request parameter
+   request parameter(json):
+   {
+    "stockName": "NKE",
+    "quantity": 305,
+    "currentPrice": 50.25
+   }
+
+
+# Stock item delete interface
+   url:(delete) http://localhost:8080/portfolio-items/portfolio/AAPL  AAPL is request parameter
+   No request parater
+
 # Modify the user funds interface
   url:(put) http://localhost:8080/users/1/funds
   request parameter（json）:
