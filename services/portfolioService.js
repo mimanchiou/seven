@@ -4,9 +4,9 @@ const User = require('../models/User');
 class PortfolioService {
   // 买入股票(添加到组合)
   async buyStock(itemData) {
-    //console.log('Buying stock with data:', itemData);
+    console.log('Buying stock with data:', itemData);
     // 计算总花费
-    const totalCost = itemData.buy_price * itemData.quantity;
+    const totalCost = itemData.buy_price * itemData.quantity+itemData.buy_price * itemData.quantity*0.0001; // 假设手续费为千分之一
     //console.log(itemData.user_id, 'available_funds:', totalCost);
     // 检查用户资金是否充足
     const user = await User.findByPk(itemData.user_id);
@@ -102,7 +102,7 @@ class PortfolioService {
     if (isNaN(parsedSellQuantity) || parsedSellQuantity <= 0) {
       throw new Error('卖出数量必须是一个有效的正整数');
     }
-    const sellAmount = parsedCurrentPrice * parsedSellQuantity; // 卖出总金额
+    const sellAmount = parsedCurrentPrice * parsedSellQuantity+ parsedCurrentPrice * parsedSellQuantity*0.0001+parsedCurrentPrice * parsedSellQuantity*0.001; // 卖出总金额
     const costAmount = buyPrice * parsedSellQuantity; // 买入时的成本
     const profit = sellAmount - costAmount; // 收益金额
     console.log(`profit: ${profit}, sellAmount: ${sellAmount}, costAmount: ${costAmount}`);
