@@ -7,7 +7,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
-  
+ <script>
+  const API_BASE_URL = 'http://localhost:3000'; // 替换为实际API地址
+ </script>
   <!-- 配置Tailwind -->
   <script>
     tailwind.config = {
@@ -72,234 +74,453 @@
     </div>
   </header>
 
-  <!-- 主内容区 -->
-  <main class="container mx-auto px-4 py-6 grid grid-cols-12 gap-6">
-    <!-- 左侧：现金和投资信息 -->
-    <section class="col-span-12 lg:col-span-3 space-y-6">
-      <!-- 账户概览卡片 -->
-      <div class="bg-white rounded-xl shadow-sm p-5 card-hover">
-        <h2 class="text-lg font-semibold mb-4 flex items-center">
-          <i class="fa fa-wallet text-primary mr-2"></i>Account Overview
-        </h2>
-        
-        <div class="space-y-4">
-          <div>
-            <p class="text-neutral-500 text-sm">Total Assets</p>
-            <p class="text-2xl font-bold">¥128,560.45</p>
-          </div>
-          
-          <div class="grid grid-cols-2 gap-4">
-            <div class="bg-neutral-100 rounded-lg p-3">
-              <p class="text-neutral-500 text-sm">Available Cash</p>
-              <p class="text-lg font-semibold">¥54,230.12</p>
-            </div>
-            <div class="bg-neutral-100 rounded-lg p-3">
-              <p class="text-neutral-500 text-sm">Total Investment</p>
-              <p class="text-lg font-semibold">¥74,330.33</p>
-            </div>
-          </div>
+  <!-- 主内容区 - 股票图表和交易区域（扩展为主要部分） -->
+  <main class="container mx-auto px-4 py-6">
+    <!-- 主要股票信息和图表区域 -->
+    <section class="bg-white rounded-xl shadow-sm p-5 card-hover mb-6">
+      
+      <!-- 时间范围选择器 -->
+      <div class="flex space-x-2 mb-4 overflow-x-auto scrollbar-hide pb-2">
+        <button class="px-3 py-1 bg-primary text-white rounded-full text-sm whitespace-nowrap">one day</button>
+        <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-full text-sm whitespace-nowrap transition-colors">three days ago</button>
+        <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-full text-sm whitespace-nowrap transition-colors">five days ago</button>
+      </div>
+      
+      <!-- 股票图表 - 扩大尺寸 -->
+      <div class="h-96 relative">
+        <canvas id="stockChart"></canvas>
+        <!-- 加载动画 -->
+        <div id="chartLoader" class="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg z-10 hidden">
+          <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
       </div>
       
-     
-      <!-- 投资记录 -->
-      <div class="bg-white rounded-xl shadow-sm p-5 card-hover">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-semibold flex items-center">
-            <i class="fa fa-history text-primary mr-2"></i>Investment History
-          </h2>
-          <button class="text-primary text-sm hover:underline">View All</button>
+      <!-- 股票价格详情 -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mt-6 text-center">
+        <div class="p-3 bg-neutral-100 rounded-lg">
+          <p class="text-neutral-500 text-sm">开盘价</p>
+          <p class="font-semibold" data-role="open"></p>
+        </div>
+        <div class="p-3 bg-neutral-100 rounded-lg">
+          <p class="text-neutral-500 text-sm">收盘价</p>
+          <p class="font-semibold" data-role="close"></p>
+        </div>
+        <div class="p-3 bg-neutral-100 rounded-lg">
+          <p class="text-neutral-500 text-sm">最高价</p>
+          <p class="font-semibold text-success" data-role="high"></p>
+        </div>
+        <div class="p-3 bg-neutral-100 rounded-lg">
+          <p class="text-neutral-500 text-sm">最低价</p>
+          <p class="font-semibold text-danger" data-role="low"></p>
+        </div>
+        <div class="p-3 bg-neutral-100 rounded-lg md:col-span-1 col-span-2">
+          <p class="text-neutral-500 text-sm">更新时间</p>
+          <p class="font-semibold" data-role="time"></p>
+        </div>
+      </div>
+      
+      <!-- 交易操作区 - 扩大尺寸 -->
+      <div class="mt-6 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
+        <div class="flex-1">
+          <label for="stockType" class="block text-sm text-neutral-500 mb-1">股票类型</label>
+          <select id="stockType" class="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+            <option value="TSLA" selected="">特斯拉 (TSLA)</option>
+            <option value="AAPL">苹果 (AAPL)</option>
+            <option value="IBM">IBM (IBM)</option>
+            <option value="GOOGL">谷歌 (GOOGL)</option>
+            <option value="NKE">耐克 (NKE)</option>
+          </select>
         </div>
         
-        <div class="space-y-4 max-h-64 overflow-y-auto scrollbar-hide pr-2">
-          <div class="flex justify-between items-center pb-2 border-b border-neutral-100">
+        <div class="flex gap-3 w-full sm:w-auto">
+          <button class="flex-1 sm:flex-none px-8 py-3 bg-success hover:bg-success/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center"
+          onclick="window.location.href='buy-stock.html'">
+            <i class="fa fa-plus-circle mr-2"></i>买入
+          </button>
+          <button class="flex-1 sm:flex-none px-8 py-3 bg-danger hover:bg-danger/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center"
+          onclick="window.location.href='sell-stock.html'">
+            <i class="fa fa-minus-circle mr-2"></i>卖出
+          </button>
+        </div>
+      </div>
+    </section>
+    <script>
+      // 页面加载完成后获取账户数据
+      document.addEventListener('DOMContentLoaded', async () => {
+        try {
+          // 调用用户数据接口
+          const response = await fetch('http://localhost:3000/users');
+          
+          if (!response.ok) {
+            throw new Error('数据获取失败');
+          }
+          
+          // 假设接口返回格式：{ totalAsset: 128560.45, availableCash: 54230.12, investmentTotal: 74330.33 }
+          const userData = await response.json();
+          const user = userData.data[0]; // 假设返回的是一个数组，取第一个用户数据
+
+          // 2. 访问对象的具体属性
+          const username = user.username;
+          const totalFunds = user.total_funds;
+          const availableFunds = user.available_funds;
+          const invested_funds = user.invested_funds;
+
+          console.log(`用户名: ${username}`);
+          console.log(`总资金: ${totalFunds}`);
+          console.log(`可用资金: ${availableFunds}`);
+
+          console.log('用户数据:', userData.data[0]);
+          
+          // 格式化金额显示（保留两位小数，添加千位分隔符）
+          /*const formatCurrency = (amount) => {
+            return '¥' + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+          };*/
+          
+          // 更新DOM元素
+          document.getElementById('totalAsset').textContent = totalFunds;
+          document.getElementById('availableCash').textContent = availableFunds;
+          document.getElementById('investmentTotal').textContent = invested_funds;
+          
+          // 切换显示状态
+          document.getElementById('accountLoading').classList.add('hidden');
+          document.getElementById('accountData').classList.remove('hidden');
+          
+        } catch (error) {
+          console.error('账户数据加载错误:', error);
+          // 显示错误提示
+          document.getElementById('accountLoading').classList.add('hidden');
+          document.getElementById('accountError').classList.remove('hidden');
+        }
+      });
+    </script>
+    <!-- 底部信息区域 - 分为三个部分 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- 左侧：账户概览和资产饼图 -->
+      <section class="space-y-6">
+        <!-- 缩小的账户概览卡片 -->
+        <div class="bg-white rounded-xl shadow-sm p-5 card-hover">
+          <h2 class="text-lg font-semibold mb-4 flex items-center">
+            <i class="fa fa-wallet text-primary mr-2"></i>账户概览
+          </h2>
+          
+          <div class="space-y-4">
             <div>
-              <p class="font-medium">Buy 贵州茅台</p>
+              <p class="text-neutral-500 text-sm">总资产</p>
+              <p class="text-xl font-bold"></p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-neutral-100 rounded-lg p-3">
+                <p class="text-neutral-500 text-sm">可用现金</p>
+                <p class="font-semibold"></p>
+              </div>
+              <div class="bg-neutral-100 rounded-lg p-3">
+                <p class="text-neutral-500 text-sm">总投资</p>
+                <p class="font-semibold"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 资产饼图 -->
+        <div class="bg-white rounded-xl shadow-sm p-5 card-hover">
+          <h2 class="text-lg font-semibold mb-4 flex items-center">
+            <i class="fa fa-pie-chart text-primary mr-2"></i>资产分布
+          </h2>
+          
+          <div class="flex flex-col items-center">
+            <div class="h-48 w-48">
+              <canvas id="assetsChart"></canvas>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 w-full mt-4">
+              <div class="flex items-center">
+                <span class="w-3 h-3 rounded-full bg-primary mr-2"></span>
+                <span class="text-sm">股票 (45%)</span>
+              </div>
+              <div class="flex items-center">
+                <span class="w-3 h-3 rounded-full bg-secondary mr-2"></span>
+                <span class="text-sm">债券 (20%)</span>
+              </div>
+              <div class="flex items-center">
+                <span class="w-3 h-3 rounded-full bg-success mr-2"></span>
+                <span class="text-sm">基金 (15%)</span>
+              </div>
+              <div class="flex items-center">
+                <span class="w-3 h-3 rounded-full bg-neutral-300 mr-2"></span>
+                <span class="text-sm">现金 (20%)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- 中间：购买股票记录及操作 -->
+      <section class="bg-white rounded-xl shadow-sm p-5 card-hover">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-semibold flex items-center">
+            <i class="fa fa-history text-primary mr-2"></i>交易记录
+          </h2>
+          <button class="text-primary text-sm hover:underline flex items-center" onclick="toggleRecordForm()">
+            <i class="fa fa-plus-circle mr-1"></i>添加记录
+          </button>
+        </div>
+        
+        <!-- 添加记录表单 (默认隐藏) -->
+        <div id="recordForm" class="mb-4 p-4 bg-neutral-50 rounded-lg hidden">
+          <h3 class="font-medium mb-3">添加交易记录</h3>
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div>
+              <label class="text-xs text-neutral-500 block mb-1">股票名称</label>
+              <input type="text" class="w-full text-sm border border-neutral-300 rounded px-2 py-1">
+            </div>
+            <div>
+              <label class="text-xs text-neutral-500 block mb-1">类型</label>
+              <select class="w-full text-sm border border-neutral-300 rounded px-2 py-1">
+                <option>买入</option>
+                <option>卖出</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-neutral-500 block mb-1">价格</label>
+              <input type="number" step="0.01" class="w-full text-sm border border-neutral-300 rounded px-2 py-1">
+            </div>
+            <div>
+              <label class="text-xs text-neutral-500 block mb-1">数量</label>
+              <input type="number" class="w-full text-sm border border-neutral-300 rounded px-2 py-1">
+            </div>
+          </div>
+          <div class="flex justify-end gap-2">
+            <button class="px-3 py-1 text-sm border border-neutral-300 rounded hover:bg-neutral-100" onclick="toggleRecordForm()">取消</button>
+            <button class="px-3 py-1 text-sm bg-primary text-white rounded hover:bg-primary/90">保存</button>
+          </div>
+        </div>
+        
+        <!-- 交易记录列表 -->
+        <div class="space-y-4 max-h-80 overflow-y-auto scrollbar-hide pr-2">
+          <div class="flex justify-between items-center pb-2 border-b border-neutral-100 group">
+            <div>
+              <p class="font-medium">买入 贵州茅台</p>
               <p class="text-neutral-500 text-sm">2023-06-14 14:25</p>
             </div>
-            <p class="text-danger font-semibold">-¥15,200.00</p>
+            <div class="flex items-center gap-2">
+              <p class="text-danger font-semibold">-¥15,200.00</p>
+              <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                <button class="text-neutral-400 hover:text-primary"><i class="fa fa-pencil"></i></button>
+                <button class="text-neutral-400 hover:text-danger ml-1"><i class="fa fa-trash"></i></button>
+              </div>
+            </div>
           </div>
           
-          <div class="flex justify-between items-center pb-2 border-b border-neutral-100">
+          <div class="flex justify-between items-center pb-2 border-b border-neutral-100 group">
             <div>
-              <p class="font-medium">Sell 腾讯控股</p>
+              <p class="font-medium">卖出 腾讯控股</p>
               <p class="text-neutral-500 text-sm">2023-06-12 10:18</p>
             </div>
-            <p class="text-success font-semibold">+¥8,750.30</p>
+            <div class="flex items-center gap-2">
+              <p class="text-success font-semibold">+¥8,750.30</p>
+              <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                <button class="text-neutral-400 hover:text-primary"><i class="fa fa-pencil"></i></button>
+                <button class="text-neutral-400 hover:text-danger ml-1"><i class="fa fa-trash"></i></button>
+              </div>
+            </div>
           </div>
           
-          <div class="flex justify-between items-center pb-2 border-b border-neutral-100">
+          <div class="flex justify-between items-center pb-2 border-b border-neutral-100 group">
             <div>
               <p class="font-medium">买入 阿里巴巴</p>
               <p class="text-neutral-500 text-sm">2023-06-08 09:40</p>
             </div>
-            <p class="text-danger font-semibold">-¥12,500.00</p>
-          </div>
-        </div>
-      </div>
-    </section>
-    
-    <!-- 中间：股票图表和交易区域 -->
-    <section class="col-span-12 lg:col-span-6 space-y-6">
-      <!-- 股票信息卡片 -->
-      <div class="bg-white rounded-xl shadow-sm p-5 card-hover">
-        <div class="flex justify-between items-start mb-4">
-          <div>
-            <h2 class="text-xl font-bold">贵州茅台 (600519)</h2>
-            <p class="text-neutral-500">沪市 · 白酒</p>
-          </div>
-          <div class="text-right">
-            <p class="text-2xl font-bold">1728.00</p>
-            <p class="text-success flex items-center justify-end">
-              <i class="fa fa-caret-up mr-1"></i>28.50 (1.67%)
-            </p>
-          </div>
-        </div>
-        
-        <!-- 时间范围选择器 -->
-        <div class="flex space-x-2 mb-4 overflow-x-auto scrollbar-hide pb-2">
-          <button class="px-3 py-1 bg-primary text-white rounded-full text-sm whitespace-nowrap">one day ago</button>
-          <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-full text-sm whitespace-nowrap transition-colors">three days ago</button>
-          <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-full text-sm whitespace-nowrap transition-colors">five days ago</button>
-        </div>
-        
-        <!-- 股票图表 -->
-        <div class="h-80 relative">
-          <canvas id="stockChart"></canvas>
-          <!-- 加载动画 -->
-          <div id="chartLoader" class="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg z-10 hidden">
-            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-          </div>
-        </div>
-        
-        <!-- 股票价格详情 -->
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mt-6 text-center">
-          <div class="p-3 bg-neutral-100 rounded-lg">
-            <p class="text-neutral-500 text-sm">opening price</p>
-            <p class="font-semibold"></p>
-          </div>
-          <div class="p-3 bg-neutral-100 rounded-lg">
-            <p class="text-neutral-500 text-sm">closing price</p>
-            <p class="font-semibold"></p>
-          </div>
-          <div class="p-3 bg-neutral-100 rounded-lg">
-            <p class="text-neutral-500 text-sm">highest price</p>
-            <p class="font-semibold text-success"></p>
-          </div>
-          <div class="p-3 bg-neutral-100 rounded-lg">
-            <p class="text-neutral-500 text-sm">lowest price</p>
-            <p class="font-semibold text-danger"></p>
-          </div>
-          <div class="p-3 bg-neutral-100 rounded-lg md:col-span-1 col-span-2">
-            <p class="text-neutral-500 text-sm">update time</p>
-            <p class="font-semibold"></p>
-          </div>
-        </div>
-        
-        <!-- 交易操作区 -->
-        <div class="mt-6 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
-          <div class="flex-1">
-            <label for="stockType" class="block text-sm text-neutral-500 mb-1">Stock Types</label>
-            <select id="stockType" class="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
-              <option value="TSLA" selected="" id="TSLA">TSLA</option>
-              <option value="AAPL" id="AAPL">AAPL</option>
-              <option value="IBM" id="IBM">IBM</option>
-              <option value="GOOGL" id="GOOGL">GOOGL</option>
-              <option value="NKE" id="NKE">NKE</option>
-            </select>
+            <div class="flex items-center gap-2">
+              <p class="text-danger font-semibold">-¥12,500.00</p>
+              <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                <button class="text-neutral-400 hover:text-primary"><i class="fa fa-pencil"></i></button>
+                <button class="text-neutral-400 hover:text-danger ml-1"><i class="fa fa-trash"></i></button>
+              </div>
+            </div>
           </div>
           
-          <div class="flex gap-3 w-full sm:w-auto">
-            <button class="flex-1 sm:flex-none px-6 py-2 bg-success hover:bg-success/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center"
-            onclick="window.location.href='buy-stock.html'">
-              <i class="fa fa-plus-circle mr-2"></i>buy
-            </button>
-            <button class="flex-1 sm:flex-none px-6 py-2 bg-danger hover:bg-danger/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center"
-            onclick="window.location.href='sell-stock.html'">
-              <i class="fa fa-minus-circle mr-2"></i>sell
-            </button>
+          <div class="flex justify-between items-center pb-2 border-b border-neutral-100 group">
+            <div>
+              <p class="font-medium">买入 特斯拉</p>
+              <p class="text-neutral-500 text-sm">2023-06-01 11:30</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <p class="text-danger font-semibold">-¥24,300.00</p>
+              <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                <button class="text-neutral-400 hover:text-primary"><i class="fa fa-pencil"></i></button>
+                <button class="text-neutral-400 hover:text-danger ml-1"><i class="fa fa-trash"></i></button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-       <!-- 交易表单模态框 (默认隐藏) -->
-       <div id="tradeModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 transform transition-all">
-          <div class="flex justify-between items-center mb-4">
-          </div>
-         
-        </div>
-      </div>
-    </section>
-    
-    
-    <!-- 右侧：持仓股票列表 -->
-    <section class="col-span-12 lg:col-span-3 space-y-6">
-      <!-- 持仓概览 -->
-      <div class="bg-white rounded-xl shadow-sm p-5 card-hover">
+      </section>
+      
+      <!-- 右侧：购买的股票的增长幅度和钱数 -->
+      <section class="bg-white rounded-xl shadow-sm p-5 card-hover">
         <h2 class="text-lg font-semibold mb-4 flex items-center">
-          <i class="fa fa-pie-chart text-primary mr-2"></i>Position Overview
+          <i class="fa fa-line-chart text-primary mr-2"></i>持仓股票表现
         </h2>
         
-        <div class="space-y-4">
-          <div class="h-48">
-            <canvas id="holdingsChart"></canvas>
-          </div>
-          
-          <div class="grid grid-cols-2 gap-4 text-center">
-            <div>
-              <p class="text-neutral-500 text-sm"> Position Quantity</p>
-              <p class="text-xl font-bold">5 只</p>
-            </div>
-            <div>
-              <p class="text-neutral-500 text-sm">Daily Profit</p>
-              <p class="text-xl font-bold text-success">+¥2,450.65</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- 持仓股票列表 -->
-      <div class="bg-white rounded-xl shadow-sm p-5 card-hover">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-semibold flex items-center">
-            <i class="fa fa-list-alt text-primary mr-2"></i>Positioned Stockss
-          </h2>
-          <span class="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">5 只</span>
-        </div>
-        
-        <div class="space-y-4 max-h-96 overflow-y-auto scrollbar-hide pr-2">
-          <!-- 持仓股票项 -->
-          <div class="p-3 hover:bg-neutral-50 rounded-lg transition-colors cursor-pointer border-l-4 border-success">
+        <div class="space-y-4 max-h-80 overflow-y-auto scrollbar-hide pr-2">
+          <!-- 股票表现项 -->
+          <div class="p-3 hover:bg-neutral-50 rounded-lg transition-colors border-l-4 border-success">
             <div class="flex justify-between items-start">
               <div>
                 <h3 class="font-semibold">贵州茅台</h3>
+                <p class="text-neutral-500 text-sm">600519.SS</p>
               </div>
               <div class="text-right">
-                <p class="font-semibold">1728.00</p>
+                <p class="font-semibold">¥1728.00</p>
                 <p class="text-success text-sm">+1.67%</p>
               </div>
             </div>
             
-            <div class="mt-2 grid grid-cols-3 text-sm">
+            <div class="mt-2 grid grid-cols-2 gap-2 text-sm">
               <div>
-                <p class="text-neutral-500">Position</p>
+                <p class="text-neutral-500">持仓数量</p>
                 <p>100 股</p>
               </div>
               <div>
-                <p class="text-neutral-500">Cost</p>
-                <p>1680.50</p>
+                <p class="text-neutral-500">持仓价值</p>
+                <p>¥172,800.00</p>
               </div>
               <div>
-                <p class="text-neutral-500">Profit</p>
+                <p class="text-neutral-500">成本价</p>
+                <p>¥1680.50</p>
+              </div>
+              <div>
+                <p class="text-neutral-500">收益</p>
                 <p class="text-success">+¥4,750.00</p>
               </div>
             </div>
+            
+            <!-- 迷你走势图 -->
+            <div class="mt-2 h-12 bg-neutral-50 rounded">
+              <canvas class="mini-chart" data-values="[1680, 1695, 1710, 1705, 1720, 1715, 1728]"></canvas>
+            </div>
           </div>
-          </div>
-          </div>
-      </section>
-  </main>
           
+          <div class="p-3 hover:bg-neutral-50 rounded-lg transition-colors border-l-4 border-success">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="font-semibold">特斯拉</h3>
+                <p class="text-neutral-500 text-sm">TSLA</p>
+              </div>
+              <div class="text-right">
+                <p class="font-semibold">$248.52</p>
+                <p class="text-success text-sm">+2.34%</p>
+              </div>
+            </div>
+            
+            <div class="mt-2 grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <p class="text-neutral-500">持仓数量</p>
+                <p>50 股</p>
+              </div>
+              <div>
+                <p class="text-neutral-500">持仓价值</p>
+                <p>¥82,146.50</p>
+              </div>
+              <div>
+                <p class="text-neutral-500">成本价</p>
+                <p>$243.00</p>
+              </div>
+              <div>
+                <p class="text-neutral-500">收益</p>
+                <p class="text-success">+¥1,837.50</p>
+              </div>
+            </div>
+            
+            <!-- 迷你走势图 -->
+            <div class="mt-2 h-12 bg-neutral-50 rounded">
+              <canvas class="mini-chart" data-values="[240, 242, 239, 241, 245, 247, 248.5]"></canvas>
+            </div>
+          </div>
+          
+          <div class="p-3 hover:bg-neutral-50 rounded-lg transition-colors border-l-4 border-danger">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="font-semibold">阿里巴巴</h3>
+                <p class="text-neutral-500 text-sm">BABA</p>
+              </div>
+              <div class="text-right">
+                <p class="font-semibold">$87.35</p>
+                <p class="text-danger text-sm">-1.23%</p>
+              </div>
+            </div>
+            
+            <div class="mt-2 grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <p class="text-neutral-500">持仓数量</p>
+                <p>200 股</p>
+              </div>
+              <div>
+                <p class="text-neutral-500">持仓价值</p>
+                <p>¥115,485.00</p>
+              </div>
+              <div>
+                <p class="text-neutral-500">成本价</p>
+                <p>$89.50</p>
+              </div>
+              <div>
+                <p class="text-neutral-500">收益</p>
+                <p class="text-danger">-¥3,035.00</p>
+              </div>
+            </div>
+            
+            <!-- 迷你走势图 -->
+            <div class="mt-2 h-12 bg-neutral-50 rounded">
+              <canvas class="mini-chart" data-values="[89.5, 89.2, 88.7, 88.9, 88.1, 87.6, 87.35]"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+  
+  <!-- 交易表单模态框 -->
+  <div id="tradeModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 transform transition-all">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold" id="modalTitle">买入股票</h3>
+        <button class="text-neutral-400 hover:text-neutral-700" onclick="closeTradeModal()">
+          <i class="fa fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm text-neutral-500 mb-1">股票</label>
+          <p class="font-medium" id="modalStockName">特斯拉 (TSLA)</p>
+          <p class="text-neutral-500 text-sm" id="modalStockPrice">$248.52</p>
+        </div>
+        
+        <div>
+          <label for="tradeQuantity" class="block text-sm text-neutral-500 mb-1">数量</label>
+          <input type="number" id="tradeQuantity" min="1" value="1" 
+                 class="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+        </div>
+        
+        <div class="bg-neutral-50 p-3 rounded-lg">
+          <div class="flex justify-between mb-1">
+            <span class="text-neutral-500">预计总额</span>
+            <span id="totalAmount" class="font-medium">$248.52</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-neutral-500">可用现金</span>
+            <span class="font-medium">¥54,230.12</span>
+          </div>
+        </div>
+        
+        <button id="confirmTradeBtn" class="w-full py-3 bg-success hover:bg-success/90 text-white rounded-lg font-medium transition-colors">
+          确认买入
+        </button>
+      </div>
+    </div>
+  </div>
+          
+  
          
   <!-- 页脚 -->
   <footer class="bg-white border-t border-neutral-200 mt-8">
@@ -310,173 +531,307 @@
   </footer>
 
   <script>
-    // 初始化股票图表
-    document.addEventListener('DOMContentLoaded', function() {
-      // 模拟股票数据
-      const stockData = {
-        labels: ['9:30', '10:00', '10:30', '11:00', '11:30', '13:30', '14:00', '14:30', '15:00'],
-        datasets: [{
-          label: '贵州茅台',
-          data: [1705.5, 1712.3, 1708.8, 1715.2, 1720.5, 1722.8, 1718.3, 1725.6, 1728.0],
-          borderColor: '#165DFF',
-          backgroundColor: 'rgba(22, 93, 255, 0.1)',
-          borderWidth: 2,
-          pointRadius: 0,
-          pointHoverRadius: 4,
-          pointBackgroundColor: '#165DFF',
-          tension: 0.4,
-          fill: true
-        }]
-      };
+    let stockChart = null;
+    // 从后端获取股票历史数据并更新图表
+    async function fetchStockHistoryData() {
+      // 显示加载动画
+      const chartLoader = document.getElementById('chartLoader');
+      if (chartLoader) chartLoader.classList.remove('hidden');
       
-      // 持仓分布图表数据
-      const holdingsData = {
-        labels: ['贵州茅台', '五 粮 液', '泸州老窖', '山西汾酒', '洋河股份'],
-        datasets: [{
-          data: [45, 20, 15, 12, 8],
-          backgroundColor: [
-            '#165DFF',
-            '#36CFC9',
-            '#722ED1',
-            '#FAAD14',
-            '#F5222D'
-          ],
-          borderWidth: 0
-        }]
-      };
-      
-      // 配置图表
-      const stockChartConfig = {
-        type: 'line',
-        data: stockData,
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: {
-            mode: 'index',
-            intersect: false,
-          },
-          plugins: {
-            legend: {
-              display: false
-            },
-            tooltip: {
-              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              titleColor: '#1D2129',
-              bodyColor: '#4E5969',
-              borderColor: 'rgba(22, 93, 255, 0.1)',
-              borderWidth: 1,
-              padding: 10,
-              boxPadding: 5,
-              usePointStyle: true,
-              callbacks: {
-                label: function(context) {
-                  return `价格: ¥${context.raw.toFixed(2)}`;
-                }
-              }
-            }
-          },
-          scales: {
-            x: {
-              grid: {
-                display: false
-              },
-              ticks: {
-                color: '#86909C',
-                font: {
-                  size: 10
-                }
-              }
-            },
-            y: {
-              position: 'right',
-              grid: {
-                color: 'rgba(0, 0, 0, 0.05)'
-              },
-              ticks: {
-                color: '#86909C',
-                font: {
-                  size: 10
-                },
-                callback: function(value) {
-                  return value.toFixed(0);
-                }
-              }
-            }
-          },
-          animation: {
-            duration: 1000,
-            easing: 'easeOutQuart'
-          }
-        }
-      };
-      
-      // 持仓分布图表配置
-      const holdingsConfig = {
-        type: 'doughnut',
-        data: holdingsData,
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '70%',
-          plugins: {
-            legend: {
-              display: false
-            },
-            tooltip: {
-              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              titleColor: '#1D2129',
-              bodyColor: '#4E5969',
-              borderColor: 'rgba(22, 93, 255, 0.1)',
-              borderWidth: 1,
-              padding: 10,
-              boxPadding: 5
-            }
-          },
-          animation: {
-            animateRotate: true,
-            animateScale: true
-          }
-        }
-      };
-      
-      // 渲染图表
-      const stockChart = new Chart(
-        document.getElementById('stockChart'),
-        stockChartConfig
-      );
-      
-      const holdingsChart = new Chart(
-        document.getElementById('holdingsChart'),
-        holdingsConfig
-      );
-      
-      // 股票类型切换事件
-      document.getElementById('stockType').addEventListener('change', function() {
-        // 显示加载动画
-        document.getElementById('chartLoader').classList.remove('hidden');
+      try {
+        // 获取选中的股票和天数
+        const stockTypeEl = document.getElementById('stockType');
+        if (!stockTypeEl) throw new Error('未找到股票选择下拉框');
+        const selectedStock = stockTypeEl.value;
         
-        // 模拟加载新数据
-        setTimeout(() => {
-          // 更新图表数据 (这里只是简单示例，实际应从API获取)
-          const stockNames = {
-            '600519': '贵州茅台',
-            '000858': '五 粮 液',
-            '000568': '泸州老窖',
-            '600809': '山西汾酒',
-            '002304': '洋河股份'
-          };
-          
-          // 生成随机数据
-          const newData = stockData.data.map(() => 1500 + Math.random() * 500);
-          
-          stockChart.data.datasets[0].data = newData;
-          stockChart.update();
-          
-          // 隐藏加载动画
-          document.getElementById('chartLoader').classList.add('hidden');
-        }, 800);
+        const activeTimeBtn = document.querySelector('.flex.space-x-2.mb-4.overflow-x-auto.scrollbar-hide.pb-2');
+        if (!activeTimeBtn) throw new Error('未找到活跃的时间按钮');
+        let days = 1;
+        /*if (activeTimeBtn.textContent.includes('three days ago')) {
+          days = 3;
+        } else if (activeTimeBtn.textContent.includes('five days ago')) {
+          days = 5;
+        }*/
+        
+        // 构建请求URL
+        const apiUrl = `http://localhost:3000/api/quick-chart/${selectedStock}/${days}`;
+        console.log('请求历史数据:', apiUrl);
+        
+        // 发起请求
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+          throw new Error(`请求失败，状态码: ${response.status}`);
+        }
+        
+        // 解析后端数据
+    const result = await response.json();
+    console.log('后端返回数据:', result);
+    
+    // 验证数据结构
+    if (!result.success) {
+      throw new Error(`后端返回错误: ${result.message || '未知错误'}`);
+    }
+    if (!result.data || !result.data.pricePoints) {
+      throw new Error('数据格式错误，缺少pricePoints');
+    }
+    
+    // 处理数据格式以适应图表
+    const chartData = processChartData(result.data.pricePoints);
+    
+    // 更新图表
+    updateStockChart(chartData, days);
+        
+      } catch (error) {
+        console.error('获取历史数据失败:', error);
+        alert(`无法获取历史数据: ${error.message}`);
+      } finally {
+        // 隐藏加载动画
+        if (chartLoader) chartLoader.classList.add('hidden');
+      }
+    }
+    
+    // 处理原始数据为图表所需格式
+function processChartData(pricePoints) {
+  // 排序数据点（按时间顺序）
+  const sortedPoints = [...pricePoints].sort((a, b) => new Date(a.time) - new Date(b.time));
+  
+  // 处理时间标签，显示日期和时间
+  const labels = sortedPoints.map(point => {
+    const date = new Date(point.time);
+    // 格式化：日期(MM-DD) 时间(HH:MM)
+    return `${date.getMonth() + 1}-${date.getDate()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  });
+  
+  // 提取价格数据
+  const prices = sortedPoints.map(point => point.price);
+  
+  return {
+    labels: labels,
+    datasets: [{
+      label: '股票价格',
+      data: prices,
+      // 这里可以添加数据集的基本样式，后续会在updateStockChart中完善
+    }]
+  };
+}
+
+// 更新股票图表
+function updateStockChart(chartData, days) {
+  try {
+    const ctx = document.getElementById('stockChart');
+    if (!ctx) throw new Error('未找到canvas元素');
+    
+    // 销毁旧图表
+    if (stockChart) {
+      stockChart.destroy();
+    }
+    
+    // 创建新图表
+    stockChart = new Chart(ctx, {
+      type: 'line',
+      data: chartData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              boxWidth: 12,
+              usePointStyle: true
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            titleColor: '#1D2129',
+            bodyColor: '#4E5969',
+            borderColor: 'rgba(22, 93, 255, 0.1)',
+            borderWidth: 1,
+            padding: 10,
+            boxPadding: 5,
+            usePointStyle: true,
+            callbacks: {
+              label: function(context) {
+                return `价格: ¥${context.raw.toFixed(2)}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              color: '#86909C',
+              font: {
+                size: 10
+              },
+              maxRotation: 45,
+              minRotation: 45,
+              // 控制x轴标签显示密度，避免过于拥挤
+              maxTicksLimit: days > 1 ? 10 : 15
+            }
+          },
+          y: {
+            position: 'right',
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            },
+            ticks: {
+              color: '#86909C',
+              font: {
+                size: 10
+              },
+              callback: function(value) {
+                return `¥${value.toFixed(2)}`;
+              }
+            }
+          }
+        },
+        animation: {
+          duration: 1000,
+          easing: 'easeOutQuart'
+        },
+        elements: {
+          line: {
+            borderColor: '#165DFF',
+            borderWidth: 2,
+            tension: 0.4
+          },
+          point: {
+            radius: 3,
+            hoverRadius: 5,
+            backgroundColor: '#165DFF'
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('更新图表失败:', error);
+    alert(`图表显示失败: ${error.message}`);
+  }
+}
+
+// 获取股票最新数据并更新信息卡片
+async function fetchStockLatestData(stockCode) {
+  try {
+    const stockTypeEl = document.getElementById('stockType');
+    if (!stockTypeEl) throw new Error('未找到股票选择下拉框');
+    const selectedStock = stockTypeEl.value;
+    
+    // 这里假设获取最新数据的API
+    const response = await fetch(`${API_BASE_URL}/api/chart/${selectedStock}/current`);
+    if (!response.ok) {
+      throw new Error(`获取最新数据失败，状态码: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    if (!result.success || !result.data) {
+      throw new Error('获取最新数据失败');
+    }
+    
+    const data = result.data;
+    
+    // 更新股票信息卡片
+    
+    const openEl = document.querySelector('[data-role="open"]');
+    const closeEl = document.querySelectorAll('[data-role="close"]')[0];
+    const highEl = document.querySelectorAll('[data-role="high"]')[0];
+    const lowEl = document.querySelectorAll('[data-role="low"]')[0];
+    const timeEl = document.querySelectorAll('[data-role="time"]')[0];
+    
+    
+    if (openEl) openEl.textContent = `¥${data.open.toFixed(2)}`;
+    if (closeEl) closeEl.textContent = `¥${data.close.toFixed(2)}`;
+    if (highEl) highEl.textContent = `¥${data.high.toFixed(2)}`;
+    if (lowEl) lowEl.textContent = `¥${data.low.toFixed(2)}`;
+    console.log('最新数据:', data);
+    // 更新时间
+    if (timeEl && data.timestamp) {
+      const date = new Date(data.timestamp);
+      timeEl.textContent = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+    }
+    
+  } catch (error) {
+    console.error('获取最新数据失败:', error);
+  }
+}
+
+// 初始化页面
+async function init() {
+  // 绑定股票选择事件
+  document.getElementById('stockType').addEventListener('change', async function() {
+    await fetchStockLatestData(this.value);
+    await fetchStockHistoryData();
+  });
+  
+  // 绑定时间范围选择事件
+  const timeButtons = document.querySelectorAll('.flex.space-x-2 button');
+  timeButtons.forEach(button => {
+    button.addEventListener('click', async function() {
+      // 更新按钮样式
+      timeButtons.forEach(btn => {
+        btn.classList.remove('bg-primary', 'text-white');
+        btn.classList.add('bg-neutral-100', 'hover:bg-neutral-200');
       });
+      this.classList.remove('bg-neutral-100', 'hover:bg-neutral-200');
+      this.classList.add('bg-primary', 'text-white');
+      
+      await fetchStockHistoryData();
+    });
+  });
+  
+  // 初始加载默认股票数据
+  const defaultStock = document.getElementById('stockType').value;
+  await fetchStockLatestData(defaultStock);
+  await fetchStockHistoryData();
+}
+
+// 页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', init);
+    
+
+ // 持仓分布图表配置
+ /*const holdingsConfig = {
+  type: 'doughnut',
+  data: holdingsData,
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '70%',
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        titleColor: '#1D2129',
+        bodyColor: '#4E5969',
+        borderColor: 'rgba(22, 93, 255, 0.1)',
+        borderWidth: 1,
+        padding: 10,
+        boxPadding: 5
+      }
+    },
+    animation: {
+      animateRotate: true,
+      animateScale: true
+    }
+  }
+};
+
+const holdingsChart = new Chart(
+  document.getElementById('holdingsChart'),
+  holdingsConfig
+);
+
+  */
       
       // 买入卖出按钮事件
       const buyBtn = document.querySelector('button.bg-success');
@@ -515,7 +870,7 @@
           tradeModal.classList.remove('flex');
         }
       });
-    });
+
   </script>
 </body>
 </html>
