@@ -70,7 +70,9 @@ async getAllStocksTotalQuantity() {
   async buyStock(itemData) {
     console.log('Buying stock with data:', itemData);
     // 计算总花费
+
     const totalCost = parseFloat(itemData.buy_price * itemData.quantity);
+
     console.log(itemData.user_id, 'available_funds:', totalCost);
     // 检查用户资金是否充足
     const user = await User.findByPk(itemData.user_id);
@@ -94,8 +96,8 @@ async getAllStocksTotalQuantity() {
     // 更新用户资金
     await User.update({
       available_funds: parseFloat(user.available_funds) - totalCost,
-      invested_funds: parseFloat(user.invested_funds) + totalCost,
-      total_funds: user.total_funds // 总资金不变，只是内部转换
+      invested_funds: parseFloat(user.invested_funds) + totalCost - 0.001 * totalCost, // 扣除交易费用
+      total_funds: user.total_funds - 0.001 * totalCost// 总资金不变，只是内部转换
     }, {
       where: { id: itemData.user_id }
     });
@@ -160,7 +162,7 @@ async getAllStocksTotalQuantity() {
       buy_time: new Date() // 设置卖出时间为当前时间
     }
     const a = await PortfolioItem.create(itemData);
-    console.log('Created portfolio item for sell:', a);
+    //console.log('Created portfolio item for sell:', a);
     // 1. 根据用户ID和股票名称查询持仓记录
     const portfolioItem = await PortfolioItem.findOne({
       where: {
@@ -203,7 +205,7 @@ async getAllStocksTotalQuantity() {
     const sellAmount = parsedCurrentPrice * parsedSellQuantity; // 卖出总金额
     const costAmount = buyPrice * parsedSellQuantity; // 买入时的成本
     const profit = sellAmount - costAmount; // 收益金额
-    console.log(`profit: ${profit}, sellAmount: ${sellAmount}, costAmount: ${costAmount}`);
+    console.log(`profit: ${profit}, sellAmount: ${sellAmount}, costAmount: ${costAmount}, buyPrice: ${buyPrice}, currentPrice: ${parsedCurrentPrice}`);
 
     // 4. 更新持仓记录（部分卖出时）
     if (sellQuantity < portfolioItem.quantity) {
@@ -226,15 +228,18 @@ async getAllStocksTotalQuantity() {
 
     // 5. 更新用户资金
     //const total_funds = user.total_funds + profit; // 更新总资金
+    console.log(`total_funds: ${user.total_funds}`);
     console.log(`total_funds: ${total_funds}`);
-    console.log(`available_funds: ${user.available_funds}, invested_funds: ${user.invested_funds}`);
-    console.log(`available_funds: ${parseFloat(user.available_funds) + sellAmount}, invested_funds: ${parseFloat(user.invested_funds) - costAmount}`);
+    //console.log(`available_funds: ${user.available_funds}, invested_funds: ${user.invested_funds}`);
+    //console.log(`available_funds: ${parseFloat(user.available_funds) + sellAmount}, invested_funds: ${parseFloat(user.invested_funds) - costAmount}`);
 
+    const ava_f = parseFloat(user.available_funds) + sellAmount - 0.001 * sellAmount;
+    const invested_f = parseFloat(user.invested_funds) - costAmount;
     await User.update(
       {
-        available_funds: parseFloat(user.available_funds) + sellAmount, // 可用资金增加卖出金额
-        invested_funds: parseFloat(user.invested_funds) - costAmount, // 投资资金减少成本金额
-        total_funds: total_funds // 总资金增加收益
+        available_funds: ava_f, // 可用资金增加卖出金额
+        invested_funds: invested_f, // 投资资金减少成本金额
+        total_funds: ava_f + invested_f // 总资金增加收益
       },
       { where: { id: userId } }
     );

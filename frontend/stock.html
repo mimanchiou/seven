@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock Trading Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+ <script>
+  const API_BASE_URL = 'http://localhost:3000'; // Replace with actual API address
+ </script>
+  <!-- Configure Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            success: '#52C41A',
+            danger: '#FF4D4F',
+            neutral: {
+              100: '#F5F7FA',
+              200: '#E4E6EB',
+              300: '#C9CDD4',
+              400: '#86909C',
+              500: '#4E5969',
+              600: '#272E3B',
+              700: '#1D2129',
+            }
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .card-hover {
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      .card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+    }
+  </style>
+</head>
+<body class="font-inter bg-neutral-100 text-neutral-700 min-h-screen">
+  <!-- Top Navigation Bar -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-line-chart text-primary text-2xl"></i>
+        <h1 class="text-xl font-bold text-neutral-700">PortfolioManage Pro</h1>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area - Stock Chart and Trading Section -->
+  <main class="container mx-auto px-4 py-6">
+    <!-- Main Stock Information and Chart Area -->
+    <section class="bg-white rounded-xl shadow-sm p-5 card-hover mb-6">
+      
+      <!-- Time Range Selector -->
+      <div class="flex space-x-2 mb-4 overflow-x-auto scrollbar-hide pb-2">
+        <button class="px-3 py-1 bg-primary text-white rounded-full text-sm whitespace-nowrap">1 Day</button>
+        <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-full text-sm whitespace-nowrap transition-colors">3 Days</button>
+        <button class="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-full text-sm whitespace-nowrap transition-colors">5 Days</button>
+      </div>
+      
+      <!-- Stock Chart -->
+      <div class="h-96 relative">
+        <canvas id="stockChart"></canvas>
+        <!-- Loading Animation -->
+        <div id="chartLoader" class="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg z-10 hidden">
+          <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      </div>
+      
+      <!-- Stock Price Details -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mt-6 text-center">
+        <div class="p-3 bg-neutral-100 rounded-lg">
+          <p class="text-neutral-500 text-sm">Open Price</p>
+          <p class="font-semibold" data-role="open"></p>
+        </div>
+        <div class="p-3 bg-neutral-100 rounded-lg">
+          <p class="text-neutral-500 text-sm">Close Price</p>
+          <p class="font-semibold" data-role="close"></p>
+        </div>
+        <div class="p-3 bg-neutral-100 rounded-lg">
+          <p class="text-neutral-500 text-sm">High Price</p>
+          <p class="font-semibold text-success" data-role="high"></p>
+        </div>
+        <div class="p-3 bg-neutral-100 rounded-lg">
+          <p class="text-neutral-500 text-sm">Low Price</p>
+          <p class="font-semibold text-danger" data-role="low"></p>
+        </div>
+        <div class="p-3 bg-neutral-100 rounded-lg md:col-span-1 col-span-2">
+          <p class="text-neutral-500 text-sm">Last Updated</p>
+          <p class="font-semibold" data-role="time"></p>
+        </div>
+      </div>
+      
+      <!-- Trading Operations Area -->
+      <div class="mt-6 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
+        <div class="flex-1">
+          <label for="stockType" class="block text-sm text-neutral-500 mb-1">Stock Symbol</label>
+          <select id="stockType" class="w-full border border-neutral-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+            <option value="TSLA" selected="">Tesla (TSLA)</option>
+            <option value="AAPL">Apple (AAPL)</option>
+            <option value="IBM">IBM (IBM)</option>
+            <option value="GOOGL">Google (GOOGL)</option>
+            <option value="NKE">Nike (NKE)</option>
+          </select>
+        </div>
+        
+        <div class="flex gap-3 w-full sm:w-auto">
+          <button class="flex-1 sm:flex-none px-8 py-3 bg-success hover:bg-success/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center"
+          onclick="window.location.href='buy-stock.html'">
+            <i class="fa fa-plus-circle mr-2"></i>Buy
+          </button>
+          <button class="flex-1 sm:flex-none px-8 py-3 bg-danger hover:bg-danger/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center"
+          onclick="window.location.href='sell-stock.html'">
+            <i class="fa fa-minus-circle mr-2"></i>Sell
+          </button>
+        </div>
+      </div>
+    </section>
+    <script>
+    // Fetch stock historical data from backend and update chart
+    async function fetchStockHistoryData() {
+      // Show loading animation
+      const chartLoader = document.getElementById('chartLoader');
+      if (chartLoader) chartLoader.classList.remove('hidden');
+      
+      try {
+        // Get selected stock and days
+        const stockTypeEl = document.getElementById('stockType');
+        if (!stockTypeEl) throw new Error('Stock selection dropdown not found');
+        const selectedStock = stockTypeEl.value;
+        
+        const activeTimeBtn = document.querySelector('.flex.space-x-2.mb-4.overflow-x-auto.scrollbar-hide.pb-2');
+        if (!activeTimeBtn) throw new Error('Active time button not found');
+        let days = 1;
+        
+        // Build request URL
+        const apiUrl = `http://localhost:3000/api/quick-chart/${selectedStock}/${days}`;
+        console.log('Request historical data:', apiUrl);
+        
+        // Make request
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+          throw new Error(`Request failed, status code: ${response.status}`);
+        }
+        
+        // Parse backend data
+        const result = await response.json();
+        console.log('Backend returned data:', result);
+        
+        // Validate data structure
+        if (!result.success) {
+          throw new Error(`Backend returned error: ${result.message || 'Unknown error'}`);
+        }
+        if (!result.data || !result.data.pricePoints) {
+          throw new Error('Data format error, missing pricePoints');
+        }
+        
+        // Process data format for chart
+        const chartData = processChartData(result.data.pricePoints);
+        
+        // Update chart
+        updateStockChart(chartData, days);
+            
+      } catch (error) {
+        console.error('Failed to fetch historical data:', error);
+        alert(`Unable to get historical data: ${error.message}`);
+      } finally {
+        // Hide loading animation
+        if (chartLoader) chartLoader.classList.add('hidden');
+      }
+    }
+    
+    // Process raw data to chart format
+    function processChartData(pricePoints) {
+      // Sort data points (by time)
+      const sortedPoints = [...pricePoints].sort((a, b) => new Date(a.time) - new Date(b.time));
+      
+      // Process time labels, show date and time
+      const labels = sortedPoints.map(point => {
+        const date = new Date(point.time);
+        // Format: date(MM-DD) time(HH:MM)
+        return `${date.getMonth() + 1}-${date.getDate()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+      });
+      
+      // Extract price data
+      const prices = sortedPoints.map(point => point.price);
+      
+      return {
+        labels: labels,
+        datasets: [{
+          label: 'Stock Price',
+          data: prices,
+          // Basic dataset styles can be added here, will be completed in updateStockChart
+        }]
+      };
+    }
+
+    // Update stock chart
+    function updateStockChart(chartData, days) {
+      try {
+        const ctx = document.getElementById('stockChart');
+        if (!ctx) throw new Error('Canvas element not found');
+        
+        // Destroy old chart
+        if (stockChart) {
+          stockChart.destroy();
+        }
+        
+        // Create new chart
+        stockChart = new Chart(ctx, {
+          type: 'line',
+          data: chartData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+              mode: 'index',
+              intersect: false,
+            },
+            plugins: {
+              legend: {
+                display: true,
+                position: 'top',
+                labels: {
+                  boxWidth: 12,
+                  usePointStyle: true
+                }
+              },
+              tooltip: {
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                titleColor: '#1D2129',
+                bodyColor: '#4E5969',
+                borderColor: 'rgba(22, 93, 255, 0.1)',
+                borderWidth: 1,
+                padding: 10,
+                boxPadding: 5,
+                usePointStyle: true,
+                callbacks: {
+                  label: function(context) {
+                    return `Price: ${context.raw.toFixed(2)}`;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: {
+                  display: false
+                },
+                ticks: {
+                  color: '#86909C',
+                  font: {
+                    size: 10
+                  },
+                  maxRotation: 45,
+                  minRotation: 45,
+                  // Control x-axis label density to avoid overcrowding
+                  maxTicksLimit: days > 1 ? 10 : 15
+                }
+              },
+              y: {
+                position: 'right',
+                grid: {
+                  color: 'rgba(0, 0, 0, 0.05)'
+                },
+                ticks: {
+                  color: '#86909C',
+                  font: {
+                    size: 10
+                  },
+                  callback: function(value) {
+                    return `${value.toFixed(2)}`;
+                  }
+                }
+              }
+            },
+            animation: {
+              duration: 1000,
+              easing: 'easeOutQuart'
+            },
+            elements: {
+              line: {
+                borderColor: '#165DFF',
+                borderWidth: 2,
+                tension: 0.4
+              },
+              point: {
+                radius: 3,
+                hoverRadius: 5,
+                backgroundColor: '#165DFF'
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Chart update failed:', error);
+        alert(`Chart display failed: ${error.message}`);
+      }
+    }
+
+    // Fetch latest stock data and update info cards
+    async function fetchStockLatestData(stockCode) {
+      try {
+        const stockTypeEl = document.getElementById('stockType');
+        if (!stockTypeEl) throw new Error('Stock selection dropdown not found');
+        const selectedStock = stockTypeEl.value;
+        
+        // Assume API for getting latest data
+        const response = await fetch(`${API_BASE_URL}/api/chart/${selectedStock}/current`);
+        if (!response.ok) {
+          throw new Error(`Failed to get latest data, status code: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        if (!result.success || !result.data) {
+          throw new Error('Failed to get latest data');
+        }
+        
+        const data = result.data;
+        
+        // Update stock info cards
+        const openEl = document.querySelector('[data-role="open"]');
+        const closeEl = document.querySelectorAll('[data-role="close"]')[0];
+        const highEl = document.querySelectorAll('[data-role="high"]')[0];
+        const lowEl = document.querySelectorAll('[data-role="low"]')[0];
+        const timeEl = document.querySelectorAll('[data-role="time"]')[0];
+        
+        if (openEl) openEl.textContent = `${data.open.toFixed(2)}`;
+        if (closeEl) closeEl.textContent = `${data.close.toFixed(2)}`;
+        if (highEl) highEl.textContent = `${data.high.toFixed(2)}`;
+        if (lowEl) lowEl.textContent = `${data.low.toFixed(2)}`;
+        console.log('Latest data:', data);
+        
+        // Update time
+        if (timeEl && data.timestamp) {
+          const date = new Date(data.timestamp);
+          timeEl.textContent = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+        }
+        
+      } catch (error) {
+        console.error('Failed to get latest data:', error);
+      }
+    }
+
+    // Initialize page
+    async function init() {
+      // Bind stock selection event
+      document.getElementById('stockType').addEventListener('change', async function() {
+        await fetchStockLatestData(this.value);
+        await fetchStockHistoryData();
+      });
+      
+      // Bind time range selection event
+      const timeButtons = document.querySelectorAll('.flex.space-x-2 button');
+      timeButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+          // Update button styles
+          timeButtons.forEach(btn => {
+            btn.classList.remove('bg-primary', 'text-white');
+            btn.classList.add('bg-neutral-100', 'hover:bg-neutral-200');
+          });
+          this.classList.remove('bg-neutral-100', 'hover:bg-neutral-200');
+          this.classList.add('bg-primary', 'text-white');
+          
+          await fetchStockHistoryData();
+        });
+      });
+      
+      // Initial load default stock data
+      const defaultStock = document.getElementById('stockType').value;
+      await fetchStockLatestData(defaultStock);
+      await fetchStockHistoryData();
+    }
+
+    // Initialize page after DOM loads
+    document.addEventListener('DOMContentLoaded', init);
+
+    // Buy/sell button events
+    const buyBtn = document.querySelector('button.bg-success');
+    const sellBtn = document.querySelector('button.bg-danger');
+    const tradeModal = document.getElementById('tradeModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const stockSelect = document.getElementById('stockType');
+    const modalStockName = document.getElementById('modalStockName');
+    
+    if (buyBtn) {
+      buyBtn.addEventListener('click', function() {
+        modalTitle.textContent = 'Buy Stock';
+        modalStockName.textContent = stockSelect.options[stockSelect.selectedIndex].text;
+        tradeModal.classList.remove('hidden');
+        tradeModal.classList.add('flex');
+      });
+    }
+    
+    if (sellBtn) {
+      sellBtn.addEventListener('click', function() {
+        modalTitle.textContent = 'Sell Stock';
+        modalStockName.textContent = stockSelect.options[stockSelect.selectedIndex].text;
+        tradeModal.classList.remove('hidden');
+        tradeModal.classList.add('flex');
+      });
+    }
+
+    function closeTradeModal() {
+      tradeModal.classList.add('hidden');
+      tradeModal.classList.remove('flex');
+    }
+    
+    // Close modal by clicking outside
+    if (tradeModal) {
+      tradeModal.addEventListener('click', function(e) {
+        if (e.target === tradeModal) {
+          closeTradeModal();
+        }
+      });
+    }
+
+  </script>
+</body>
+</html>

@@ -146,5 +146,10 @@ curl "http://localhost:3000/api/stocks/search?q=Apple"
   url:(get) http://localhost:3000/portfolio-items/portfolio/get_all_stock_sum_quantity
   No request parameters
 
+# retrun all sell or buy record in database
+ url:(get) http://localhost:3000/portfolio-items/portfolio/items
+ No request parameters
+
+
 
 
