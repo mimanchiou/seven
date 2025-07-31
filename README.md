@@ -142,5 +142,9 @@ curl "http://localhost:3000/api/stocks/search?q=Apple"
   url:(get) http://localhost:3000/portfolio-items/portfolio/stock/AAPL 
   (APPL is a request parameter)
 
+# retrun all stock sum quantity and stock_name
+  url:(get) http://localhost:3000/portfolio-items/portfolio/get_all_stock_sum_quantity
+  No request parameters
+
 
 
