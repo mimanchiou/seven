@@ -37,9 +37,11 @@ class PortfolioController {
   // 卖出股票
   async sellStock(req, res) {
     try {
-      const { stocks_name, quantity, sellPrice } = req.body;
-      console.log(`卖出股票: ${stocks_name}, 数量: ${quantity}, 卖出价格: ${sellPrice}`);
-      if (typeof sellPrice !== 'number' || sellPrice <= 0) {
+      
+      const { stock_name, quantity, buy_price } = req.body;
+      console.log(`卖出股票: ${stock_name}, 数量: ${quantity}, 卖出价格: ${buy_price}`);
+      const a = await portfolioService.buyStock(req.body);//更新买卖数据库表
+      if (typeof buy_price !== 'number' || buy_price <= 0) {
         return res.status(400).json({
           success: false,
           message: '卖出价格必须为正数'
@@ -47,9 +49,9 @@ class PortfolioController {
       }
       
       const result = await portfolioService.sellStock(
-        stocks_name,
+        stock_name,
         quantity,
-        sellPrice
+        buy_price
       );
       
       res.status(200).json({

@@ -667,7 +667,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
       try {
         // Call user data API
-        const response = await fetch('http://localhost:3000/users');
+        const response = await fetch('http://localhost:8080/users');
         
         if (!response.ok) {
           throw new Error('Failed to fetch data');
@@ -723,7 +723,7 @@
       }
     }
 
-    function saveNewRecord() {
+    async function saveNewRecord() {
       const stockName = document.getElementById('addStockName').value;
       const tradeType = document.getElementById('addTradeType').value;
       const price = parseFloat(document.getElementById('addStockPrice').value);
@@ -744,46 +744,80 @@
       const timeString = `${currentTime.getFullYear()}-${(currentTime.getMonth() + 1).toString().padStart(2, '0')}-${currentTime.getDate().toString().padStart(2, '0')} ${currentTime.getHours().toString().padStart(2, '0')}:${currentTime.getMinutes().toString().padStart(2, '0')}`;
       
       const newId = Date.now(); // Use timestamp as ID
-      
-      const recordHtml = `
-        <div class="flex justify-between items-center pb-2 border-b border-neutral-100 group" data-record-id="${newId}">
-          <div>
-            <p class="font-medium record-title">${tradeType} ${stockName}</p>
-            <p class="text-neutral-500 text-sm record-time">${timeString}</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <p class="${amountClass} font-semibold record-amount">${amountText}</p>
-            <div class="opacity-0 group-hover:opacity-100 transition-opacity">
-              <button class="text-neutral-400 hover:text-primary" onclick="editRecord(${newId})"><i class="fa fa-pencil"></i></button>
-              <button class="text-neutral-400 hover:text-danger ml-1" onclick="deleteRecord(${newId})"><i class="fa fa-trash"></i></button>
+      const payload = {
+        user_id: 1, 
+        stock_name: stockName,
+        buy_time: timeString,
+        buy_price: price,
+        quantity: quantity,
+        trade_type: tradeType,
+      };
+
+      try {
+        const response = await fetch('http://localhost:8080/portfolio-items/portfolio/buy', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        // 检查 HTTP 响应状态码是否成功 (2xx)
+        if (!response.ok) {
+          // 如果服务器返回了错误信息（比如 JSON 格式的错误详情），尝试解析它
+          const errorData = await response.json().catch(() => ({ message: '请求失败，但服务器未返回具体错误信息。' }));
+          throw new Error(errorData.message || `服务器错误: ${response.status}${response.statusText}`);
+        }
+
+        // 解析服务器返回的成功数据
+        // 假设你的后端在成功创建记录后，会返回包含新记录ID的完整对象
+        const savedRecord = await response.json();
+        const realId = savedRecord.id; // 从后端响应中获取真实ID
+
+        // 3. 后端保存成功后，再更新 UI
+        const totalAmount = price * quantity;
+        const isProfit = tradeType === 'Sell';
+        const amountText = `${isProfit ? '+' : '-'}${totalAmount.toFixed(2)}`;
+        const amountClass = isProfit ? 'text-success' : 'text-danger';
+
+        const recordHtml = `
+          <div class="flex justify-between items-center pb-2 border-b border-neutral-100 group" data-record-id="${realId}">
+            <div>
+              <p class="font-medium record-title">${tradeType}${stockName}</p>
+              <p class="text-neutral-500 text-sm record-time">${timeString}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <p class="${amountClass} font-semibold record-amount">${amountText}</p>
+              <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                <button class="text-neutral-400 hover:text-primary" onclick="editRecord(${realId})"><i class="fa fa-pencil"></i></button>
+                <button class="text-neutral-400 hover:text-danger ml-1" onclick="deleteRecord(${realId})"><i class="fa fa-trash"></i></button>
+              </div>
             </div>
           </div>
-        </div>
-      `;
-      
-      // Add to top of list
-      const recordsList = document.getElementById('tradeRecordsList');
-      recordsList.insertAdjacentHTML('afterbegin', recordHtml);
-      
-      // Hide form
-      toggleRecordForm();
-      
-      // 更新资产分布图表
-      setTimeout(() => {
-        updateAssetDistribution();
-      }, 100);
-      
-      // Backend API call logic can be added here
-      console.log('New trading record:', {
-        id: newId,
-        stockName,
-        tradeType,
-        price,
-        quantity,
-        totalAmount,
-        time: timeString
-      });
-    }
+        `;
+
+        // 添加到列表顶部
+        const recordsList = document.getElementById('tradeRecordsList');
+        recordsList.insertAdjacentHTML('afterbegin', recordHtml);
+
+        // 隐藏表单
+        toggleRecordForm();
+
+        // 更新资产分布图表
+        setTimeout(() => {
+          updateAssetDistribution();
+        }, 100);
+
+        console.log('新交易记录已成功保存:', savedRecord);
+
+  } catch (error) {
+    // 4. 如果任何步骤出错，捕获错误并提示用户
+    console.error('保存交易记录失败:', error);
+    alert(`保存失败: ${error.message}`);
+    // 可选：如果保存失败，可以不隐藏表单，让用户有机会修正后重试
+  }
+}
+    
 
     function editRecord(recordId) {
       currentEditingId = recordId;

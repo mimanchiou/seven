@@ -28,6 +28,12 @@ const PortfolioItem = sequelize.define('PortfolioItem', {
     allowNull: false,
     defaultValue: 0,
     comment: '买入股票数量'
+  },
+  trade_type:{
+    type: DataTypes.STRING(20),
+    allowNull: false,
+    defaultValue: 'buy',
+    comment: '交易类型（买入/卖出）'
   }
 }, {
   tableName: 'user_portfolio_items',

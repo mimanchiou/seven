@@ -1,7 +1,7 @@
 const userService = require('../services/userService.js');
 
 class UserController {
-  // 创建用户
+  /*// 创建用户
   async createUser(req, res) {
     try {
       const user = await userService.createUser(req.body);
@@ -15,7 +15,7 @@ class UserController {
         message: error.message
       });
     }
-  }
+  }*/
 
   // 获取用户信息
   async getUser(req, res) {

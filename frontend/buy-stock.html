@@ -248,20 +248,23 @@
       // 股票价格映射表()shoupanjian
       async function fetchstockPrices(stockCode)  {
         try{
-         // 调用后端API获取收盘价（替换为实际API地址）
+         /*// 调用后端API获取收盘价（替换为实际API地址）
           const response = await fetch(`http://localhost:3000/api/chart/${stockSelect.value}/current`);
           if (!response.ok) throw new Error('Failed to fetch stock price');
 
           const data = await response.json();
           
-          console.log(data);
+          console.log(data);*/
 
     // 更新当前价格显示
-           currentPriceDisplay.textContent = `¥${data.data.current}`;
-           stockPrices[stockCode] = data.data.current; // 更新股票价格映射表
+           //currentPriceDisplay.textContent = `¥${data.data.current}`;
+           currentPriceDisplay.textContent = 200;
+           stockPrices[stockCode] = 200;
+           //stockPrices[stockCode] = data.data.current; // 更新股票价格映射表
    
           // 处理涨跌幅（正数上涨，负数下跌）
-    const isUp = data.data.changePercent >= 0;
+    //const isUp = data.data.changePercent >= 0;
+    const isUp = 1.6;
     changePercent.className = `ml-2 text-sm ${isUp ? 'text-success' : 'text-danger'}`;
     changePercent.innerHTML = `
       <i class="fa ${isUp ? 'fa-caret-up' : 'fa-caret-down'}"></i>
@@ -279,7 +282,7 @@
 // 从后端获取可用资金
 async function fetchAvailableFunds() {
   try {
-    const response = await fetch(`http://localhost:3000/users`);
+    const response = await fetch(`http://localhost:8080/users`);
     if (!response.ok) throw new Error('Failed to fetch available funds');
 
     const userdata = await response.json();
@@ -315,11 +318,12 @@ async function fetchAvailableFunds() {
         });
       }
       // 提交购买请求到后端
+
 async function submitBuyOrder() {
   const stockCode = stockSelect.value;
-  if (!stockData[stockCode]) return;
+  //if (!stockData[stockCode]) return;
 
-  const user_id = '1';
+  //const user_id = '1';
   const quantity = parseInt(buyAmount.value);
   const price = stockPrices[stockCode];
   const totalAmount = parseFloat(totalAmountE1.textContent.replace('¥', ''));
@@ -332,7 +336,7 @@ async function submitBuyOrder() {
     confirmBuyBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>Processing...';
 
     // 调用后端购买接口（替换为实际API地址）
-    const response = await fetch(`http://localhost:3000/portfolio-items/portfolio/buy`, {
+    const response = await fetch(`http://localhost:8080/portfolio-items/portfolio/buy`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -342,7 +346,8 @@ async function submitBuyOrder() {
         stock_name: stockCode, // 股票名称
         buy_time: currentTime, // 购买时间
         buy_price: price, // 总金额
-        quantity: quantity // 购买数
+        quantity: quantity, // 购买数
+        trade_type: 'buy' // 交易类型
       })
     });
 
@@ -355,7 +360,7 @@ async function submitBuyOrder() {
       // 更新订单详情弹窗内容
       document.querySelector('.bg-neutral-100.rounded-lg.p-4.text-left.mb-6.text-sm .flex.justify-between.mb-2:nth-child(1) span:last-child').textContent = `${stockCode}`;
       document.querySelector('.bg-neutral-100.rounded-lg.p-4.text-left.mb-6.text-sm .flex.justify-between.mb-2:nth-child(2) span:last-child').textContent = `¥${price.toFixed(2)}`;
-      document.querySelector('.bg-neutral-100.rounded-lg.p-4.text-left.mb-6.text-sm .flex.justify-between.mb-2:nth-child(3) span:last-child').textContent = `${amount} shares`;
+      document.querySelector('.bg-neutral-100.rounded-lg.p-4.text-left.mb-6.text-sm .flex.justify-between.mb-2:nth-child(3) span:last-child').textContent = `${quantity} shares`;
       
       // 重新获取可用资金
       await fetchAvailableFunds();
@@ -375,6 +380,7 @@ async function submitBuyOrder() {
     confirmBuyBtn.innerHTML = '<i class="fa fa-check-circle mr-2"></i>Confirm Buy';
   }
 }
+
 // 事件监听修正
 stockSelect.addEventListener('change', (e) => fetchstockPrices(e.target.value)); // 股票切换时更新价格
 buyAmount.addEventListener('input', updateTotalAmount); // 数量变化时重新计算
@@ -438,7 +444,7 @@ quickAmountBtns.forEach(btn => {
       });
       
       // 确认买入(post name,number,totalprice,get)
-      confirmBuyBtn.addEventListener('click', submitBuyOrder());
+      confirmBuyBtn.addEventListener('click', submitBuyOrder);
       
       // 取消按钮
       cancelBtn.addEventListener('click', function() {
