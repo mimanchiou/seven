@@ -61,6 +61,29 @@ class PortfolioController {
       });
     }
   }
+  // 获取所有股票的总持股数
+  async getAllStocksTotalQuantity(req, res) {
+  try {
+    // 不再需要从请求中获取参数
+    // 直接调用 service 层方法，获取所有股票的总持股数
+    const stocksSummary = await portfolioService.getAllStocksTotalQuantity();
+
+    // 返回一个包含所有股票及其总持股数的数组
+    res.status(200).json({
+      success: true,
+      count: stocksSummary.length, // 返回有多少种不同的股票
+      data: stocksSummary
+    });
+  } catch (error) {
+    // 捕获可能的错误，例如数据库查询错误
+    console.error("Error in getAllStocksTotalQuantity controller:", error); // 建议在服务器端打印错误日志
+    res.status(500).json({
+      success: false,
+      message: '获取所有股票总持股数时失败',
+      error: error.message
+    });
+  }
+}
 
 
   // 卖出股票

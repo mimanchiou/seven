@@ -22,6 +22,46 @@ class PortfolioService {
     return result || 0;
   }
 
+  /**
+ * 计算数据库中每只股票的总持股数
+ * @returns {Promise<Array<Object>>} 返回一个数组，例如: [{ stockName: 'AAPL', totalQuantity: 100 }, ...]
+ */
+async getAllStocksTotalQuantity() {
+  try {
+    const stocksSummary = await PortfolioItem.findAll({
+      // 1. 指定我们需要的字段
+      attributes: [
+        'stock_name', // 我们要按这个字段分组
+        // 2. 使用 Sequelize 的聚合函数 SUM 来计算 quantity 的总和
+        //    并用 'totalQuantity' 作为这个总和的别名
+        [require('sequelize').fn('SUM', require('sequelize').col('quantity')), 'totalQuantity']
+      ],
+      // 3. 指定分组字段，所有 stockname 相同的记录会被分为一组
+      group: ['stock_name'],
+      // 4. (可选但推荐) 按股票名称排序，让返回的结果更整洁
+      order: [['stock_name', 'ASC']],
+      // 5. (可选) 设置 raw: true，这样返回的就是一个纯 JavaScript 对象数组，
+      //    而不是 Sequelize 实例数组，通常更易于处理。
+      raw: true
+    });
+
+    // Sequelize 返回的 'stockname' 是小写的，为了保持一致性（比如和 Controller 返回的 stockName 一致），
+    // 我们可以在这里做一个简单的映射。
+    // 如果你觉得小写也可以，这步可以省略。
+    const formattedSummary = stocksSummary.map(item => ({
+      stockName: item.stock_name,
+      totalQuantity: item.totalQuantity
+    }));
+
+    return formattedSummary;
+
+  } catch (error) {
+    console.error("Error in getAllStocksTotalQuantity service:", error);
+    // 抛出错误，让 Controller 的 catch 块来处理
+    throw new Error('无法从数据库计算股票总持股数');
+  }
+}
+
   // 买入股票(添加到组合)
   async buyStock(itemData) {
     console.log('Buying stock with data:', itemData);
