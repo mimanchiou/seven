@@ -34,6 +34,35 @@ class PortfolioController {
     }
   }
 
+   /**
+   * 根据股票名称获取总持仓数量
+   * 前端请求示例: GET /api/portfolio/stock/AAPL/total-quantity
+   */
+  async getTotalQuantityByStock(req, res) {
+    try {
+      // 从 URL 参数中获取股票名称，例如 :stockName
+      const { stock_name } = req.params;
+      
+      // 调用 service 层方法，传入股票名称
+      const totalQuantity = await portfolioService.getTotalQuantityByStock(stock_name);
+
+      // 如果没有找到任何记录，totalQuantity 会是 0，这仍然是一个有效的结果
+      res.status(200).json({
+        success: true,
+        stockName: stock_name,
+        totalQuantity: totalQuantity
+      });
+    } catch (error) {
+      // 捕获可能的错误，例如数据库查询错误
+      res.status(500).json({ // 使用 500 表示服务器内部错误
+        success: false,
+        message: '计算股票总持仓数量时失败',
+        error: error.message
+      });
+    }
+  }
+
+
   // 卖出股票
   async sellStock(req, res) {
     try {

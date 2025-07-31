@@ -3,6 +3,25 @@ const User = require('../models/User');
 const { Op } = require('sequelize');
 
 class PortfolioService {
+
+   /**
+   * 根据股票名称计算该股票的总持仓数量
+   * @param {string} stockName - 股票名称
+   * @returns {Promise<number>} 返回总数量，如果没有记录则返回 0
+   */
+  async getTotalQuantityByStock(stockName) {
+    // 使用 Sequelize 的 aggregate 函数
+    const result = await PortfolioItem.sum('quantity', {
+      where: {
+        stock_name: stockName // 查询条件：stock_name 等于传入的参数
+      }
+    });
+
+    // 如果没有匹配的记录，`sum` 方法会返回 `null`。
+    // 我们将其转换为 0，以便前端处理。
+    return result || 0;
+  }
+
   // 买入股票(添加到组合)
   async buyStock(itemData) {
     console.log('Buying stock with data:', itemData);
