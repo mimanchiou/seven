@@ -316,6 +316,11 @@ async getAllStocksTotalQuantity() {
     return { success: false, message: '删除操作失败，请稍后重试。' };
   }
   }
+
+  async getAllPortfolioItems() {
+    return await PortfolioItem.findAll(); // 查询所有记录
+  }
+
 }
 
 module.exports = new PortfolioService();

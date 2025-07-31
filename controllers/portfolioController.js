@@ -167,6 +167,22 @@ class PortfolioController {
       });
     }
   }
+
+   async getAllPortfolioItems(req, res) {
+    try {
+      const items = await portfolioService.getAllPortfolioItems();
+      res.status(200).json({
+        success: true,
+        data: items
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "获取投资组合数据失败",
+        error: error.message
+      });
+    }
+  }
 }
 
 module.exports = new PortfolioController();
