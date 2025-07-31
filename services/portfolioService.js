@@ -13,7 +13,8 @@ class PortfolioService {
     // 使用 Sequelize 的 aggregate 函数
     const result = await PortfolioItem.sum('quantity', {
       where: {
-        stock_name: stockName // 查询条件：stock_name 等于传入的参数
+        stock_name: stockName, // 查询条件：stock_name 等于传入的参数
+        trade_type: 'buy' // 只计算买入的记录
       }
     });
 
@@ -36,6 +37,9 @@ async getAllStocksTotalQuantity() {
         //    并用 'totalQuantity' 作为这个总和的别名
         [require('sequelize').fn('SUM', require('sequelize').col('quantity')), 'totalQuantity']
       ],
+      where: {
+        trade_type: 'buy' // 只计算买入的记录
+      },
       // 3. 指定分组字段，所有 stockname 相同的记录会被分为一组
       group: ['stock_name'],
       // 4. (可选但推荐) 按股票名称排序，让返回的结果更整洁
@@ -66,8 +70,8 @@ async getAllStocksTotalQuantity() {
   async buyStock(itemData) {
     console.log('Buying stock with data:', itemData);
     // 计算总花费
-    const totalCost = itemData.buy_price * itemData.quantity;
-    //console.log(itemData.user_id, 'available_funds:', totalCost);
+    const totalCost = parseFloat(itemData.buy_price * itemData.quantity);
+    console.log(itemData.user_id, 'available_funds:', totalCost);
     // 检查用户资金是否充足
     const user = await User.findByPk(itemData.user_id);
     //console.log('User found:', user);
@@ -89,8 +93,8 @@ async getAllStocksTotalQuantity() {
     
     // 更新用户资金
     await User.update({
-      available_funds: user.available_funds - totalCost,
-      invested_funds: user.invested_funds + totalCost,
+      available_funds: parseFloat(user.available_funds) - totalCost,
+      invested_funds: parseFloat(user.invested_funds) + totalCost,
       total_funds: user.total_funds // 总资金不变，只是内部转换
     }, {
       where: { id: itemData.user_id }
@@ -147,6 +151,16 @@ async getAllStocksTotalQuantity() {
   }
 
   async sellStock(stockName, sellQuantity, currentPrice) {
+
+    const itemData = {
+      stock_name: stockName,
+      quantity: sellQuantity,
+      buy_price: currentPrice,
+      trade_type: 'sell', // 标记为卖出交易
+      buy_time: new Date() // 设置卖出时间为当前时间
+    }
+    const a = await PortfolioItem.create(itemData);
+    console.log('Created portfolio item for sell:', a);
     // 1. 根据用户ID和股票名称查询持仓记录
     const portfolioItem = await PortfolioItem.findOne({
       where: {
@@ -168,6 +182,7 @@ async getAllStocksTotalQuantity() {
 
     // 2. 获取用户信息
     const user = await User.findByPk(userId);
+    console.log('User found:', user);
     if (!user) {
       throw new Error('用户不存在');
     }
@@ -207,14 +222,18 @@ async getAllStocksTotalQuantity() {
 
     // 2. 使用转换后的数字进行计算
     const total_funds = userFundsAsNumber + profitAsNumber;
+    //console.log(`sellAmount: ${sellAmount}, costAmount: ${costAmount}, profit: ${profit}, total_funds: ${total_funds}`);
 
     // 5. 更新用户资金
     //const total_funds = user.total_funds + profit; // 更新总资金
     console.log(`total_funds: ${total_funds}`);
+    console.log(`available_funds: ${user.available_funds}, invested_funds: ${user.invested_funds}`);
+    console.log(`available_funds: ${parseFloat(user.available_funds) + sellAmount}, invested_funds: ${parseFloat(user.invested_funds) - costAmount}`);
+
     await User.update(
       {
-        available_funds: user.available_funds + sellAmount, // 可用资金增加卖出金额
-        invested_funds: user.invested_funds - costAmount, // 投资资金减少成本金额
+        available_funds: parseFloat(user.available_funds) + sellAmount, // 可用资金增加卖出金额
+        invested_funds: parseFloat(user.invested_funds) - costAmount, // 投资资金减少成本金额
         total_funds: total_funds // 总资金增加收益
       },
       { where: { id: userId } }

@@ -92,7 +92,7 @@ class PortfolioController {
       
       const { stock_name, quantity, buy_price } = req.body;
       console.log(`卖出股票: ${stock_name}, 数量: ${quantity}, 卖出价格: ${buy_price}`);
-      const a = await portfolioService.buyStock(req.body);//更新买卖数据库表
+      //const a = await portfolioService.buyStock(req.body);//更新买卖数据库表
       if (typeof buy_price !== 'number' || buy_price <= 0) {
         return res.status(400).json({
           success: false,
