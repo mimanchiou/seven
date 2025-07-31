@@ -138,5 +138,9 @@ curl "http://localhost:3000/api/stocks/search?q=Apple"
   url:(get) http://localhost:8080/users
   No request parameters
 
+# Return the total amount of holdings based on the stock name.
+  url:(get) http://localhost:3000/portfolio-items/portfolio/stock/AAPL 
+  (APPL is a request parameter)
+
 
 
